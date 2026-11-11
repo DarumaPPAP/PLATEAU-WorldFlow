@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+  "jobId": "job-fixture-01",
+  "planId": "plan-fixture-01",
+  "state": "COMPLETED",
+  "packages": [
+    {
+      "packageId": "com.synesthesias.plateau-unity-sdk",
+      "state": "ADDED",
+      "resolvedVersion": "4.3.0"
+    }
+  ],
+  "evidencePaths": [
+    "Library/PLATEAUWorldFlow/Setup/job-fixture-01/manifest-diff.json"
+  ],
+  "diagnostics": [],
+  "planHash": "60bee7871e531fba9cc6c2976c0f05bff3f1a6d4731f42e3e3edea3773ffdfcd"
+}

@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/dependency-inventory.schema.json",
+  "title": "Dependency Inventory",
+  "description": "Phase 0 wire contract v1. Unknown properties are rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectFingerprint",
+    "unityVersion",
+    "inspectedAt",
+    "packageList",
+    "packages",
+    "tools",
+    "diagnostics"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "projectFingerprint": {
+      "$ref": "#/$defs/hash"
+    },
+    "unityVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+[a-z][0-9]+(?![\\s\\S])",
+      "maxLength": 32
+    },
+    "inspectedAt": {
+      "$ref": "#/$defs/date"
+    },
+    "packageList": {
+      "enum": [
+        "OFFLINE_CACHE_MAY_BE_STALE",
+        "ONLINE",
+        "UNAVAILABLE"
+      ]
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packageId",
+          "requiredVersion",
+          "resolvedVersion",
+          "source",
+          "sourceUri",
+          "sourceRef",
+          "resolvedCommit",
+          "directDependency",
+          "status",
+          "evidence"
+        ],
+        "properties": {
+          "packageId": {
+            "$ref": "#/$defs/packageId"
+          },
+          "requiredVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,127}(?![\\s\\S])",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resolvedVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,127}(?![\\s\\S])",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "REGISTRY",
+                  "GIT",
+                  "EMBEDDED",
+                  "LOCAL",
+                  "BUILT_IN"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceUri": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^https://[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+/[A-Za-z0-9._/-]+(?![\\s\\S])",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceRef": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}(?![\\s\\S])",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resolvedCommit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}(?![\\s\\S])",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "directDependency": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "READY",
+              "MISSING",
+              "INCOMPATIBLE",
+              "BLOCKED",
+              "UNKNOWN"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "PACKAGE_LIST",
+                "MANIFEST",
+                "LOCK",
+                "TOOL_PROBE",
+                "COMPILE",
+                "CAPABILITY"
+              ]
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "toolId",
+          "resolvedVersion",
+          "status",
+          "evidence"
+        ],
+        "properties": {
+          "toolId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}(?![\\s\\S])",
+            "maxLength": 64
+          },
+          "resolvedVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,127}(?![\\s\\S])",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "READY",
+              "MISSING",
+              "INCOMPATIBLE",
+              "BLOCKED",
+              "UNKNOWN"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "PACKAGE_LIST",
+                "MANIFEST",
+                "LOCK",
+                "TOOL_PROBE",
+                "COMPILE",
+                "CAPABILITY"
+              ]
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "maxLength": 64
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z(?![\\s\\S])",
+      "maxLength": 20,
+      "format": "date-time"
+    },
+    "packageId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:\\.[a-z0-9][a-z0-9_-]*){2,}(?![\\s\\S])",
+      "maxLength": 128
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "location",
+        "retryable"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}(?![\\s\\S])",
+          "maxLength": 64
+        },
+        "location": {
+          "enum": [
+            "ENVIRONMENT",
+            "PACKAGE_LIST",
+            "MANIFEST",
+            "LOCK",
+            "PLAN",
+            "APPROVAL",
+            "UPM",
+            "RECOVERY",
+            "COMPILE",
+            "EVIDENCE"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

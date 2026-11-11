@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+  "unityVersion": "6000.3.10f1",
+  "inspectedAt": "2026-11-11T00:00:00Z",
+  "packageList": "OFFLINE_CACHE_MAY_BE_STALE",
+  "packages": [
+    {
+      "packageId": "com.synesthesias.plateau-unity-sdk",
+      "requiredVersion": "v4.3.0",
+      "resolvedVersion": null,
+      "source": null,
+      "sourceUri": null,
+      "sourceRef": null,
+      "resolvedCommit": null,
+      "directDependency": null,
+      "status": "MISSING",
+      "evidence": [
+        "MANIFEST",
+        "LOCK",
+        "PACKAGE_LIST"
+      ]
+    },
+    {
+      "packageId": "com.example.fixture",
+      "requiredVersion": null,
+      "resolvedVersion": "1.0.0",
+      "source": "GIT",
+      "sourceUri": "https://example.invalid/fixture.git",
+      "sourceRef": "release-1",
+      "resolvedCommit": "4444444444444444444444444444444444444444",
+      "directDependency": true,
+      "status": "UNKNOWN",
+      "evidence": [
+        "MANIFEST",
+        "LOCK"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "toolId": "git-lfs",
+      "resolvedVersion": null,
+      "status": "UNKNOWN",
+      "evidence": [
+        "TOOL_PROBE"
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "OFFLINE_LIST_MAY_BE_STALE",
+      "location": "PACKAGE_LIST",
+      "retryable": true
+    }
+  ]
+}
