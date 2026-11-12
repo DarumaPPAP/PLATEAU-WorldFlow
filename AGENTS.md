@@ -3,7 +3,7 @@
 ## 正本とPhase境界
 
 - 製品方針は[システム設計仕様書](docs/architecture/system-spec.md)を正本とする。
-- Phase 0の責務、受入条件とテストIDは[実装仕様](docs/architecture/phase0-implementation.md)に従う。
+- 各Phaseの範囲は正本の第9章、検証結果の扱いは[検証方針](docs/ai/verification-policy.md)に従う。
 - 現行のSetup JSONは[契約と実行前条件](docs/contracts/README.md)を参照する。
 - 作業開始前に対象Phase、実装Baseline、対象Project、未解決の設計判断を確認する。
 
