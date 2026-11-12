@@ -1,0 +1,12 @@
+{
+  "name": "DarumaPPAP.PlateauWorldFlow.Setup.Editor",
+  "rootNamespace": "DarumaPPAP.PlateauWorldFlow",
+  "references": [
+    "DarumaPPAP.PlateauWorldFlow.Core.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false
+}
