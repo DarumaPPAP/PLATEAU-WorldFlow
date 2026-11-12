@@ -1,5 +1,7 @@
 # Setup JSON契約
 
+> 本文はPhase 0の依存Setup契約です。Phase 1のDataset/Coverage/Area/PNGについては [Phase 1 Read-only Contract](phase1-readonly.md) を参照してください。既存v1 Setup Schemaの意味は変更しません。
+
 [システム設計仕様書](../architecture/system-spec.md) §2.8のJSON表現です。すべてDraft 2020-12、UTF-8、`schemaVersion: 1`です。未知プロパティは全階層で拒否します。名前の重複、非JSONの数値、整数フィールドへの小数・指数表記、対にならないUnicodeサロゲートも受け付けません。SchemaのIDは識別子として使用し、検証時にネットワークから取得しません。
 
 | 契約 | 用途 | Schema |

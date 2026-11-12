@@ -8,7 +8,7 @@
 - **UPM Display Name**: `PLATEAU WorldFlow`
 - **C# namespace**: `DarumaPPAP.PlateauWorldFlow`
 - **ライセンス方針**: 自作コード MIT License／依存コード・都市データは個別ライセンスを遵守
-- **状態**: 設計確定。GitHub Repository 作成済み。Unity Editor の機能実装と E2E 検証は未実施。
+- **状態**: Phase 0のRepository基盤・Editor Setupは実装・検証済み。Phase 1のRead-only PoCは実装準備段階であり、都市モデルImportは未実装。
 
 > 本仕様書のパス、コマンド、JSON、型、Assembly 名は、特記なき限り **PLATEAU-WorldFlow に新規実装する設計名**であり、既存 SDK の API 名を示すものではない。
 
@@ -540,7 +540,7 @@ Requested → LocationsResearched → LocationsApproved
 - 現時点では正式な Unity Editor E2E 未実施。Compatibility の確約には追加検証が必要。
 - Toolkits v2.3.0 の Package manifest に記載された SDK 依存 Version と Release Note の対応説明に差異があるため、UPM 解決と実コンパイルを検証してから機能有効化する。
 - UnityMCP／CLI の実 Version・オプション導入挙動は後続 PoC で確認する。
-- **今回追加した自動依存診断と承認付き UPM 導入は仕様追加であり、まだ実装されていない。** Unity 6000.3 での Domain Reload 復元、Git LFS の検出、初回通知、Git／tgz 導入の E2E を必ず実施する。
+- **自動依存診断と承認付きUPM導入はPhase 0で実装済み。** 実SDK取得中のDomain Reload、オフライン/Git LFS欠落など未実行E2Eは、PR #2の検証記録に従って未確認として扱う。
 - `Client.AddAndRemove` の事前 Dry Run を Unity 6000.3 で利用できるとは仮定しない。依存 Resolver の副作用は変更前後で記録・検査する。
 - 本仕様は商標利用や第三者素材再配布の法的保証ではない。公開前に権利者への確認が必要となる場合がある。
 
