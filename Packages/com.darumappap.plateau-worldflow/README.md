@@ -4,7 +4,9 @@
 
 1. Editor起動後にSDKを読み取り診断します。`Tools > PLATEAU WorldFlow > Check Dependencies` で再診断できます。
 2. SDKが欠落し、GitとGit LFSを利用できる場合は `Review and Install SDK` からProject、固定Commit、Package Version、影響を確認します。追加は標準ダイアログでの承認後に開始します。
-3. 進行中のJobと診断・差分はProjectの `Library/PLATEAUWorldFlow/Setup/` に記録します。Reload後に結果が確定できない場合は追加を停止し、Package Managerと `Check Dependencies` で実Projectの状態を確認できます。
+3. 進行中のJobと診断・差分はProjectの `Library/PLATEAUWorldFlow/Setup/` に記録します。結果が不明な場合は再照合後に追加を停止します。Package Managerで処理が終わったことを確認し、`Check Dependencies` でJobを再照合できます。
+
+Jobの結果を引き続き確定できない場合は、Editorを閉じてPackage Managerの処理が終了していることを確認してください。SDKが未導入で、manifestとlockがPlanの記録と一致することを確認できた場合に限り、`pending.json` を証跡として別名で保管し、Editorを開いて新しいPlanを作成できます。SDKが存在する場合やファイルに差分がある場合は、既存のPackage構成とJob記録を保全して状況を確認してください。
 
 GitやGit LFSを利用できない場合は、公式Releaseの `.tgz` を選び、Unity Package Managerの `Install package from tarball` を利用できます。都市モデルのImportは後続Phaseの対象です。利用者向けのGit導入は動作確認後にPackage subfolderと安定Tagを指定して案内します。
 

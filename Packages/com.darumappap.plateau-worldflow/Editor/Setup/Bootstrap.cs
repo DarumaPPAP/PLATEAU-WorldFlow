@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace DarumaPPAP.PlateauWorldFlow
     {
         private const string Menu = "Tools/PLATEAU WorldFlow/";
         private const string SessionKey = "DarumaPPAP.PlateauWorldFlow.InitialDiagnostic.";
+        private const double RecoveryDelaySeconds = 10;
         private static readonly Bootstrap Instance = new Bootstrap();
         private readonly string _project = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         private readonly InstallGate _gate = new InstallGate();
@@ -25,15 +27,17 @@ namespace DarumaPPAP.PlateauWorldFlow
         private InstallPlan _plan;
         private ListRequest _list;
         private AddRequest _add;
-        private Task<string> _tools;
+        private Task<(string Failure, Dictionary<string, object>[] Tools)> _tools;
         private string _upmFailure;
         private bool _inspectQueued = true;
+        private bool _compileObservedWithSdk;
         private double _nextInspection;
 
         static Bootstrap()
         {
             EditorApplication.update += Instance.Tick;
             Events.registeredPackages += Instance.OnPackagesRegistered;
+            CompilationPipeline.compilationFinished += Instance.OnCompilationFinished;
         }
 
         [MenuItem(Menu + "Check Dependencies")]
@@ -47,6 +51,20 @@ namespace DarumaPPAP.PlateauWorldFlow
 
         private void OnPackagesRegistered(PackageRegistrationEventArgs _) => QueueInspection();
 
+        private void OnCompilationFinished(object _)
+        {
+            _compileObservedWithSdk = IsPinnedSdkRegistered();
+            if (_nextInspection > 0)
+            {
+                QueueInspection();
+            }
+        }
+
+        private bool IsPinnedSdkRegistered()
+        {
+            return PackageInfo.GetAllRegisteredPackages().Any(package => package.name == DependencyCatalog.PackageId && package.version == DependencyCatalog.Version && package.git?.hash == DependencyCatalog.Commit);
+        }
+
         private void QueueInspection()
         {
             _plan = null;
@@ -56,14 +74,14 @@ namespace DarumaPPAP.PlateauWorldFlow
 
         private void Tick()
         {
-            // Package state can change during editor startup, compilation, and play mode transitions.
+            // Packageの状態が変動する間は診断の確定と通知を保留する。
             if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode) return;
 
             try
             {
                 if (_add != null)
                 {
-                    // Observe the sole mutation to completion before issuing a new UPM request.
+                    // 追加結果を永続化してから、次のUPM Requestを発行する。
                     if (!_add.IsCompleted) return;
                     _upmFailure = _add.Status == StatusCode.Success ? null : ClassifyUpmFailure(_add.Error?.message);
                     _add = null;
@@ -73,7 +91,7 @@ namespace DarumaPPAP.PlateauWorldFlow
 
                 if (_list != null)
                 {
-                    // Both read-only probes must be available for one consistent inventory.
+                    // 同じ診断に使うPackage一覧とツール検査の両方を待つ。
                     if (!_list.IsCompleted || !_tools.IsCompleted) return;
                     FinishInspection();
                 }
@@ -94,7 +112,12 @@ namespace DarumaPPAP.PlateauWorldFlow
 
         private void StartInspection()
         {
-            _store ??= new JobStore(_project);
+            if (_store == null)
+            {
+                _store = new JobStore(_project);
+                // Reload後に既に登録済みのSDKを確認できる場合は、新しいDomainで照合する。
+                _compileObservedWithSdk |= IsPinnedSdkRegistered();
+            }
             _beforeList = new ProjectSnapshot(_project);
             _inspectQueued = false;
             _list = Client.List(true, true);
@@ -106,7 +129,7 @@ namespace DarumaPPAP.PlateauWorldFlow
             var snapshot = new ProjectSnapshot(_project);
             var request = _list;
             _list = null;
-            // If UPM rewrote either file during List, the result cannot justify a plan against the new snapshot.
+            // List中にPackage構成が変わった場合は、その結果から新しいPlanを作らない。
             if (!_beforeList.SameFiles(snapshot))
             {
                 QueueInspection();
@@ -115,9 +138,9 @@ namespace DarumaPPAP.PlateauWorldFlow
 
             bool listed = request.Status == StatusCode.Success;
             var sdk = listed ? request.Result.FirstOrDefault(package => package.name == DependencyCatalog.PackageId) : null;
-            string toolStatus = _tools.IsFaulted ? "GIT_PROBE_FAILED" : _tools.Result;
-            string failure = _upmFailure ?? toolStatus;
-            var diagnostic = new SdkDiagnostic(_store.Fingerprint, snapshot, sdk, listed, SupportedEditor(), failure, _upmFailure == null ? "ENVIRONMENT" : "UPM");
+            var tools = _tools.IsCompletedSuccessfully ? _tools.Result : ("GIT_PROBE_FAILED", ToolProbe.UnknownTools());
+            string failure = _upmFailure ?? tools.Item1;
+            var diagnostic = new SdkDiagnostic(_store.Fingerprint, snapshot, sdk, listed, SupportedEditor(), failure, _upmFailure == null ? "ENVIRONMENT" : "UPM", tools.Item2);
             _store.WriteInventory(diagnostic);
             _store.RemovePlan();
             _plan = null;
@@ -126,20 +149,40 @@ namespace DarumaPPAP.PlateauWorldFlow
             {
                 Reconcile(job, snapshot, diagnostic, listed);
             }
-            else if (diagnostic.Status == "MISSING" && toolStatus == null && !_inspectQueued)
+            else if (diagnostic.Status == "MISSING" && tools.Item1 == null && !_inspectQueued)
             {
                 _plan = InstallPlan.Create(Context(snapshot, true));
                 _store.WritePlan(_plan);
             }
 
-            string key = SessionKey + _store.Fingerprint + "." + PackageInfo.FindForAssembly(typeof(Bootstrap).Assembly)?.version;
-            bool previouslyNotified = SessionState.GetBool(key, false);
-            SessionState.SetBool(key, true);
-            if (!previouslyNotified || _nextInspection == 0)
+            if (_nextInspection == 0)
             {
                 string proposal = _plan == null ? "" : $" 導入候補 {_plan.Source} (Package {DependencyCatalog.Version})。";
                 string manual = failure == null ? "" : $" {failure}。公式Releaseの .tgz を使った手動導入を確認してください。 {DependencyCatalog.Release}";
                 Debug.Log($"[WorldFlow] SDK診断 {diagnostic.Status}。{proposal}{manual}");
+            }
+            ShowInitialNotice(diagnostic, job != null);
+        }
+
+        private void ShowInitialNotice(SdkDiagnostic diagnostic, bool hasPendingJob)
+        {
+            // 診断・UPM処理の途中では初回通知を消費せず、安全な次の診断に委ねる。
+            if (Application.isBatchMode || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode || hasPendingJob || _add != null || _list != null || _inspectQueued) return;
+            // キャッシュとPackage構成から判定できない状態では、初回の判定を保留する。
+            if (diagnostic.Status == "UNKNOWN") return;
+
+            var package = PackageInfo.FindForAssembly(typeof(Bootstrap).Assembly);
+            string key = SessionKey + _store.Fingerprint + "." + package?.version + "." + package?.packageId;
+            // ダイアログを表示する前に記録し、Editorイベントの再入やReloadによる重複を防ぐ。
+            if (SessionState.GetBool(key, false)) return;
+            SessionState.SetBool(key, true);
+
+            if (diagnostic.Status == "MISSING")
+            {
+                string instructions = _plan == null
+                    ? $"導入元: {DependencyCatalog.Source}\nPackage: {DependencyCatalog.Version}\n\nGitとGit LFSの状態を確認し、Tools > PLATEAU WorldFlow > Check Dependencies で再診断してください。"
+                    : $"導入元: {_plan.Source}\nPackage: {DependencyCatalog.Version}\n\n追加内容とProjectへの影響は、Tools > PLATEAU WorldFlow > Review and Install SDK で確認できます。";
+                EditorUtility.DisplayDialog("PLATEAU SDKのセットアップ案内", "このProjectにはPLATEAU SDKが導入されていません。\n\n" + instructions, "閉じる");
             }
         }
 
@@ -152,34 +195,31 @@ namespace DarumaPPAP.PlateauWorldFlow
                 return;
             }
 
-            bool compileSettled = diagnostic.Status == "READY" || EditorUtility.scriptCompilationFailed;
-            var stage = Json.Field<string>(job, "stage");
-            bool requestFinished = stage == "ADD_SUCCEEDED" || stage == "ADD_FAILED";
-            if (listed && ((diagnostic.ResolvedPinnedSdk && compileSettled) || stage == "ADD_FAILED" || (requestFinished && !diagnostic.ResolvedPinnedSdk)))
+            bool settled = _nextInspection > 0;
+            var observation = (diagnostic.ResolvedPinnedSdk, diagnostic.Status, diagnostic.Version, diagnostic.Inventory);
+            bool compileFailed = EditorUtility.scriptCompilationFailed;
+            bool compileSettled = settled && (_compileObservedWithSdk || compileFailed);
+            if (_store.TryReconcile(job, plan, snapshot, observation, listed, compileFailed, settled, compileSettled))
             {
-                string failure = JobStore.GetObservedFailure(job);
-                if (failure == null && diagnostic.Status != "READY")
-                {
-                    failure = diagnostic.ResolvedPinnedSdk ? "COMPILE_OR_CAPABILITY_FAILED" : "PACKAGE_RESOLUTION_MISMATCH";
-                }
-                _store.Complete(job, plan, snapshot, diagnostic, failure);
                 _upmFailure = null;
+                _nextInspection = 0;
                 return;
             }
 
-            string recoveryKey = SessionKey + "recovery." + plan.Id;
-            if (!SessionState.GetBool(recoveryKey, false))
+            if (!settled)
             {
-                SessionState.SetBool(recoveryKey, true);
-                Debug.LogWarning($"[WorldFlow] 保存済みJobを照合しています。結果が確定するまでSDK追加を再発行しません。 plan={plan.Id}");
+                _inspectQueued = true;
+                _nextInspection = EditorApplication.timeSinceStartup + RecoveryDelaySeconds;
             }
-            _inspectQueued = true;
-            _nextInspection = EditorApplication.timeSinceStartup + 10;
+            else
+            {
+                Debug.LogWarning($"[WorldFlow] 保存済みJobの結果を確定できません。SDK追加を停止しています。Package Managerで状態を確認し、Check Dependenciesで再照合してください。 plan={plan.Id}");
+            }
         }
 
         private void Install()
         {
-            // The menu can also be invoked programmatically. These checks are part of the execution path.
+            // メニューがコードから呼ばれる場合にも、実行可否をここで確認する。
             if (!CanReviewInstall()) return;
             var plan = _plan;
             try
@@ -237,7 +277,7 @@ namespace DarumaPPAP.PlateauWorldFlow
         internal static string ClassifyUpmFailure(string message)
         {
             string error = message?.ToLowerInvariant() ?? "";
-            // UPM may include private paths and URLs in its message. Persist only a controlled code.
+            // UPMのメッセージには非公開パスやURLが含まれ得るため、定義済みコードだけを保存する。
             if (error.Contains("git lfs") || error.Contains("git-lfs"))
             {
                 return "GIT_LFS_FAILED";

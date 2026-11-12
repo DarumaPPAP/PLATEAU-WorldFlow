@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -16,7 +17,7 @@ namespace DarumaPPAP.PlateauWorldFlow
         internal bool ResolvedPinnedSdk { get; }
         internal string Inventory { get; }
 
-        internal SdkDiagnostic(string fingerprint, ProjectSnapshot snapshot, PackageInfo sdk, bool listed, bool supportedEditor, string toolStatus, string toolLocation)
+        internal SdkDiagnostic(string fingerprint, ProjectSnapshot snapshot, PackageInfo sdk, bool listed, bool supportedEditor, string toolStatus, string toolLocation, Dictionary<string, object>[] tools = null)
         {
             var evidence = new List<string> { "MANIFEST" };
             var diagnostics = new List<Dictionary<string, object>>();
@@ -79,7 +80,7 @@ namespace DarumaPPAP.PlateauWorldFlow
             }
 
             var package = Json.Object(("packageId", DependencyCatalog.PackageId), ("requiredVersion", DependencyCatalog.Version), ("resolvedVersion", Version), ("source", source), ("sourceUri", officialRequest ? DependencyCatalog.GitUrl : null), ("sourceRef", officialRequest ? snapshot.SdkRequest.Substring(DependencyCatalog.GitUrl.Length + 1) : null), ("resolvedCommit", commit), ("directDependency", sdk == null ? (snapshot.SdkRequest == null ? null : (object)true) : sdk.isDirectDependency), ("status", Status), ("evidence", evidence));
-            Inventory = Json.Write(Json.Object(("schemaVersion", 1), ("projectFingerprint", fingerprint), ("unityVersion", Application.unityVersion), ("inspectedAt", Digests.Timestamp(DateTimeOffset.UtcNow)), ("packageList", listed ? "OFFLINE_CACHE_MAY_BE_STALE" : "UNAVAILABLE"), ("packages", new[] { package }), ("tools", Array.Empty<object>()), ("diagnostics", diagnostics)));
+            Inventory = Json.Write(Json.Object(("schemaVersion", 1), ("projectFingerprint", fingerprint), ("unityVersion", Application.unityVersion), ("inspectedAt", Digests.Timestamp(DateTimeOffset.UtcNow)), ("packageList", listed ? "OFFLINE_CACHE_MAY_BE_STALE" : "UNAVAILABLE"), ("packages", new[] { package }), ("tools", tools ?? ToolProbe.UnknownTools()), ("diagnostics", diagnostics)));
         }
 
         internal static Dictionary<string, object> Diagnostic(string code, string location, bool retryable)
@@ -92,8 +93,16 @@ namespace DarumaPPAP.PlateauWorldFlow
             const string importerAssembly = "PLATEAU.Runtime";
             const string importerType = "PLATEAU.CityImport.Import.CityImporter";
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(item => item.GetName().Name == importerAssembly);
-            var compiledType = assembly?.GetType(importerType, false);
-            return compiledType != null && PackageInfo.FindForAssembly(assembly)?.name == sdk.name;
+            try
+            {
+                var compiledType = assembly?.GetType(importerType, false);
+                return compiledType != null && PackageInfo.FindForAssembly(assembly)?.name == sdk.name;
+            }
+            catch (Exception error) when (error is TypeLoadException || error is FileNotFoundException || error is FileLoadException)
+            {
+                // SDKは解決済みでも、依存Assemblyを読み込めない場合はCapabilityを確認できない。
+                return false;
+            }
         }
 
         private static string SafeSource(PackageSource source)

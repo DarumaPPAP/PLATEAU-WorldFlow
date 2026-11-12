@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -50,12 +51,37 @@ namespace DarumaPPAP.PlateauWorldFlow
             var original = store.ReadPending();
 
             var reopened = new JobStore(_project);
+            var diagnostic = new SdkDiagnostic(reopened.Fingerprint, before, null, true, true, null, "ENVIRONMENT");
 
             Assert.That(reopened.Fingerprint, Is.EqualTo(store.Fingerprint));
+            Assert.That(reopened.TryReconcile(reopened.ReadPending(), plan, before, (false, diagnostic.Status, diagnostic.Version, diagnostic.Inventory), true, false, true, true), Is.False);
             Assert.That(reopened.HasPending(), Is.True);
             Assert.That(Json.Field<string>(reopened.ReadPending(), "jobId"), Is.EqualTo(Json.Field<string>(original, "jobId")));
             Assert.Throws<IOException>(() => reopened.Begin(plan, before));
             Assert.That(new ProjectSnapshot(_project).SameFiles(before), Is.True);
+        }
+
+        [Test]
+        public void ResolvedSdkWithoutCapabilityBecomesPartialAfterSettling()
+        {
+            var store = new JobStore(_project);
+            var before = new ProjectSnapshot(_project);
+            var plan = InstallPlan.Create(Context(store, before));
+            store.Begin(plan, before);
+            store.ObserveRequest(null);
+            var job = store.ReadPending();
+            var diagnostic = (true, "UNKNOWN", DependencyCatalog.Version, "{}");
+
+            Assert.That(store.TryReconcile(job, plan, before, diagnostic, true, false, true, false), Is.False);
+            Assert.That(store.HasPending(), Is.True);
+            Assert.That(store.TryReconcile(job, plan, before, diagnostic, true, false, true, true), Is.True);
+
+            string id = Json.Field<string>(job, "jobId");
+            var result = Json.Parse(File.ReadAllText(Path.Combine(_project, "Library", "PLATEAUWorldFlow", "Setup", id, "result.json")));
+            Assert.That(Json.Field<string>(result, "state"), Is.EqualTo("PARTIAL"));
+            var diagnostics = Json.Field<object[]>(result, "diagnostics");
+            Assert.That(Json.Field<string>((Dictionary<string, object>)diagnostics[0], "code"), Is.EqualTo("IMPORT_CAPABILITY_UNCONFIRMED"));
+            Assert.That(store.HasPending(), Is.False);
         }
 
         [Test]
@@ -98,7 +124,7 @@ namespace DarumaPPAP.PlateauWorldFlow
             }
             var current = new ProjectSnapshot(_project);
             var diagnostic = new SdkDiagnostic(reopened.Fingerprint, current, null, true, true, null, "ENVIRONMENT");
-            reopened.Complete(job, plan, current, diagnostic, JobStore.GetObservedFailure(job));
+            Assert.That(reopened.TryReconcile(job, plan, current, (diagnostic.ResolvedPinnedSdk, diagnostic.Status, diagnostic.Version, diagnostic.Inventory), true, false, false, false), Is.True);
 
             string id = Json.Field<string>(job, "jobId");
             var result = Json.Parse(File.ReadAllText(Path.Combine(_project, "Library", "PLATEAUWorldFlow", "Setup", id, "result.json")));

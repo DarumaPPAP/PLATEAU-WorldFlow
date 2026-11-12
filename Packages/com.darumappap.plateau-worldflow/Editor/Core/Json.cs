@@ -114,7 +114,7 @@ namespace DarumaPPAP.PlateauWorldFlow
 
         internal static T Field<T>(Dictionary<string, object> fields, string key)
         {
-            // JSON null and a missing or wrongly typed field have the same lookup result.
+            // null、欠落、型不一致のいずれも呼び出し元には既定値を返す。
             return fields != null && fields.TryGetValue(key, out var value) && value is T result ? result : default;
         }
 
@@ -188,11 +188,11 @@ namespace DarumaPPAP.PlateauWorldFlow
                     case "true": return true;
                     case "false": return false;
                 }
-                // A quoted token has already passed the lexical escape checks.
+                // 字句解析でエスケープ形式を検証済みなので、文字列として復号できる。
                 if (value[0] == '"') return ReadString(value);
-                // Preserve integer tokens as integers for the plan schema.
+                // Plan契約で整数と小数・指数表記を区別できるようにする。
                 if (int.TryParse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out int integer)) return integer;
-                // Other numeric tokens are valid JSON, but cannot satisfy an integer field.
+                // 整数型に変換できない数値もJSONとして保持し、整数フィールドとの照合では区別する。
                 if (value[0] == '-' || char.IsDigit(value[0])) return new Number(value);
                 throw new FormatException("Expected a JSON value.");
             }
@@ -236,7 +236,7 @@ namespace DarumaPPAP.PlateauWorldFlow
                 {
                     _position++;
                 }
-                // End of input is valid after the final token.
+                // 末尾の空白は入力終端として扱う。
                 if (_position == _text.Length)
                 {
                     _current = null;
@@ -253,7 +253,7 @@ namespace DarumaPPAP.PlateauWorldFlow
 
             private bool Take(string expected)
             {
-                // Leave the lookahead available for the caller when it does not match.
+                // 不一致時は呼び出し元が別の区切りとして照合できるようにする。
                 if (_current != expected) return false;
                 Advance();
                 return true;

@@ -26,7 +26,7 @@ namespace DarumaPPAP.PlateauWorldFlow
                 }
                 catch (IOException) when (File.Exists(identityFile))
                 {
-                    // The first writer owns the persistent project identifier.
+                    // 先に作成されたProject識別子を共有する。
                 }
             }
             var identity = File.ReadAllText(identityFile);
@@ -67,7 +67,7 @@ namespace DarumaPPAP.PlateauWorldFlow
 
         internal bool HasPending()
         {
-            // Treat malformed or inaccessible job records as errors, never as permission to dispatch.
+            // Job記録の破損やアクセス不能を、追加を許可する根拠にしない。
             return ReadPending() != null;
         }
 
@@ -91,6 +91,45 @@ namespace DarumaPPAP.PlateauWorldFlow
             }
         }
 
+        internal bool TryReconcile(Dictionary<string, object> job, InstallPlan plan, ProjectSnapshot current, (bool Resolved, string Status, string Version, string Inventory) diagnostic, bool listed, bool compileFailed, bool settled, bool compileSettled)
+        {
+            // Listの結果が得られなければ、復旧後のPackage状態を確定できない。
+            if (!listed) return false;
+
+            string stage = Json.Field<string>(job, "stage");
+            string failure = null;
+            if (stage == "ADD_FAILED")
+            {
+                failure = GetObservedFailure(job) ?? "UPM_ADD_FAILED";
+            }
+            else if (diagnostic.Resolved)
+            {
+                // Package登録直後はAssemblyの再読み込みがまだ始まっていない場合がある。
+                if ((compileFailed || diagnostic.Status != "READY") && !compileSettled) return false;
+
+                if (compileFailed)
+                {
+                    failure = "SCRIPT_COMPILATION_FAILED";
+                }
+                else if (diagnostic.Status != "READY")
+                {
+                    failure = diagnostic.Status == "UNKNOWN" ? "IMPORT_CAPABILITY_UNCONFIRMED" : "COMPILE_OR_CAPABILITY_FAILED";
+                }
+            }
+            else if (stage == "ADD_SUCCEEDED" && settled && diagnostic.Status == "INCOMPATIBLE")
+            {
+                failure = "PACKAGE_RESOLUTION_MISMATCH";
+            }
+            else
+            {
+                // Reloadで結果を失った場合、証拠のない成功・失敗を確定しない。
+                return false;
+            }
+
+            Complete(job, plan, current, (diagnostic.Resolved, diagnostic.Version, diagnostic.Inventory), failure);
+            return true;
+        }
+
         internal void CancelBeforeDispatch(InstallPlan plan, ProjectSnapshot current)
         {
             var job = ReadPending();
@@ -102,7 +141,7 @@ namespace DarumaPPAP.PlateauWorldFlow
             Complete(job, plan, current, null, "PLAN_INVALIDATED_BEFORE_DISPATCH");
         }
 
-        internal void Complete(Dictionary<string, object> job, InstallPlan plan, ProjectSnapshot current, SdkDiagnostic diagnostic, string failure)
+        private void Complete(Dictionary<string, object> job, InstallPlan plan, ProjectSnapshot current, (bool Resolved, string Version, string Inventory)? diagnostic, string failure)
         {
             string id = Json.Field<string>(job, "jobId");
             if (!Guid.TryParseExact(id, "N", out _) || plan.Project != Fingerprint)
@@ -111,7 +150,7 @@ namespace DarumaPPAP.PlateauWorldFlow
             }
 
             bool changed = current.ManifestHash != plan.Manifest || current.LockHash != plan.Lock;
-            bool resolved = diagnostic?.ResolvedPinnedSdk == true;
+            bool resolved = diagnostic?.Resolved == true;
             string state = diagnostic == null ? "CANCELLED" : resolved && failure == null ? "COMPLETED" : changed || resolved ? "PARTIAL" : "FAILED";
             var directory = Path.Combine(_root, id);
             Directory.CreateDirectory(directory);
@@ -122,10 +161,11 @@ namespace DarumaPPAP.PlateauWorldFlow
             var evidencePaths = new List<string> { $"{RelativeRoot}/{id}/changes.json" };
             if (diagnostic != null)
             {
-                WriteAtomic(Path.Combine(directory, "inventory.json"), diagnostic.Inventory);
+                WriteAtomic(Path.Combine(directory, "inventory.json"), diagnostic.Value.Inventory);
                 evidencePaths.Add($"{RelativeRoot}/{id}/inventory.json");
             }
-            string location = failure == "COMPILE_OR_CAPABILITY_FAILED" ? "COMPILE" : diagnostic == null ? "PLAN" : "UPM";
+            bool compileFailure = failure == "SCRIPT_COMPILATION_FAILED" || failure == "IMPORT_CAPABILITY_UNCONFIRMED" || failure == "COMPILE_OR_CAPABILITY_FAILED";
+            string location = compileFailure ? "COMPILE" : diagnostic == null ? "PLAN" : "UPM";
             var diagnostics = failure == null ? Array.Empty<object>() : new[] { SdkDiagnostic.Diagnostic(failure, location, state == "FAILED") };
             var package = Json.Object(("packageId", DependencyCatalog.PackageId), ("state", diagnostic == null ? "NOT_ATTEMPTED" : resolved ? "ADDED" : "FAILED"), ("resolvedVersion", diagnostic?.Version));
             var result = Json.Object(("schemaVersion", 1), ("jobId", id), ("planId", plan.Id), ("planHash", plan.Hash), ("projectFingerprint", Fingerprint), ("state", state), ("packages", new[] { package }), ("evidencePaths", evidencePaths), ("diagnostics", diagnostics));
