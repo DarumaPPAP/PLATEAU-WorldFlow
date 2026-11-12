@@ -22,6 +22,12 @@
 
 ## 2. 一次情報への固定参照
 
+### PR-Bの読取経路
+
+- Unity側はSDK v4.3.0の `libplateau` を版条件付きで参照する。ローカルでは許可済みUDXの既存ファイル名を走査し、`GmlFile` と `GridCode` で地物種別と境界を取得する。本文を開かず、LODと測地系は未確認として返す。
+- リモートでは [公開Datasetカタログ](https://docs.plateauview.mlit.go.jp/api/rest/operations/datacatalogplateau-datasets/) と [公式CityGMLファイル索引](https://docs.plateauview.mlit.go.jp/api/rest/operations/datacatalogcitygmlconditions/) をHTTPSで照会する。`plateau-public` のDataset IDは最新CityGML一覧の5桁自治体コード。索引の地物別LOD件数が正の場合だけ、そのLODの存在を記録する。SDKはメッシュの妥当性と境界の取得に使用する。
+- Nativeクライアントの公開実装では一覧呼び出しの証明書検証が無効で、通信失敗時に空のベクターが返る場合がある。上記HTTPS経路では成功したHTTP応答だけを採用し、リダイレクト、応答サイズ超過、タイムアウト、応答構造の不一致を照会失敗として扱う。索引が返すCityGMLのURLは取得しない。
+
 ### PLATEAU SDK 4.3.0
 
 - [PLATEAU SDK v4.3.0固定ツリー](https://github.com/Project-PLATEAU/PLATEAU-SDK-for-Unity/tree/a9830e9a86e8c5b28486ab0e318714ca4a20364c)
