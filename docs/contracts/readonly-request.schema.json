@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-request.schema.json",
+  "title": "Phase 1 Read-only Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "requestId", "projectFingerprint", "operation", "input"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "requestId": {"$ref": "#/$defs/uuid"},
+    "projectFingerprint": {"$ref": "#/$defs/hash"},
+    "operation": {
+      "enum": [
+        "dependencies.inspect",
+        "datasets.list",
+        "coverage.inspect",
+        "areas.plan",
+        "areas.preview",
+        "areas.preview_png"
+      ]
+    },
+    "input": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"operation": {"const": "dependencies.inspect"}}},
+      "then": {
+        "properties": {"input": {"type": "object", "additionalProperties": false, "required": [], "properties": {}}}
+      }
+    },
+    {
+      "if": {"properties": {"operation": {"const": "datasets.list"}}},
+      "then": {
+        "properties": {
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "sourceReference", "maxResults"],
+            "properties": {
+              "source": {"$ref": "#/$defs/source"},
+              "sourceReference": {"$ref": "#/$defs/id"},
+              "maxResults": {"type": "integer", "minimum": 1, "maximum": 20}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"operation": {"const": "coverage.inspect"}}},
+      "then": {
+        "properties": {
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "datasetId", "maxResults"],
+            "properties": {
+              "source": {"$ref": "#/$defs/source"},
+              "datasetId": {"$ref": "#/$defs/id"},
+              "gridCodes": {"type": "array", "items": {"$ref": "#/$defs/grid"}, "maxItems": 500},
+              "maxResults": {"type": "integer", "minimum": 1, "maximum": 500}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"operation": {"const": "areas.plan"}}},
+      "then": {
+        "properties": {
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "datasetId",
+              "selectedGridCodes",
+              "coverageSnapshotId",
+              "coordinateReference",
+              "planRevision"
+            ],
+            "properties": {
+              "datasetId": {"$ref": "#/$defs/id"},
+              "selectedGridCodes": {"type": "array", "items": {"$ref": "#/$defs/grid"}, "maxItems": 500, "minItems": 1},
+              "coverageSnapshotId": {"$ref": "#/$defs/uuid"},
+              "coordinateReference": {"$ref": "#/$defs/crs"},
+              "planRevision": {"$ref": "#/$defs/revision"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"operation": {"const": "areas.preview"}}},
+      "then": {
+        "properties": {
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["planId", "planRevision"],
+            "properties": {"planId": {"$ref": "#/$defs/uuid"}, "planRevision": {"$ref": "#/$defs/revision"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"operation": {"const": "areas.preview_png"}}},
+      "then": {
+        "properties": {
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["previewId", "width", "height"],
+            "properties": {
+              "previewId": {"$ref": "#/$defs/uuid"},
+              "width": {"$ref": "#/$defs/dimension"},
+              "height": {"$ref": "#/$defs/dimension"}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9_-]{0,63})(?![\\s\\S])",
+      "not": {
+        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]|[A-Za-z0-9_-]{32,}"
+      }
+    },
+    "uuid": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?![\\s\\S])"
+    },
+    "hash": {"type": "string", "pattern": "^(?:[a-f0-9]{64})(?![\\s\\S])"},
+    "source": {"enum": ["LOCAL", "REMOTE"]},
+    "grid": {"type": "string", "pattern": "^(?:[0-9]{4}(?:[0-7]{2}(?:[0-9]{2}[1-4]{0,3})?)?)(?![\\s\\S])"},
+    "crs": {"anyOf": [{"type": "string", "pattern": "^(?:EPSG:[1-9][0-9]{0,5})(?![\\s\\S])"}, {"type": "null"}]},
+    "revision": {"type": "integer", "minimum": 1, "maximum": 2147483647},
+    "dimension": {"type": "integer", "minimum": 1, "maximum": 1024}
+  }
+}

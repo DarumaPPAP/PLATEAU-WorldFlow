@@ -30,6 +30,16 @@ namespace DarumaPPAP.PlateauWorldFlow
             return fields.ToDictionary(field => field.key, field => field.value, StringComparer.Ordinal);
         }
 
+        internal static object Real(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            return new Number(value.ToString("R", CultureInfo.InvariantCulture));
+        }
+
         internal static string Write(object value)
         {
             var output = new StringBuilder();

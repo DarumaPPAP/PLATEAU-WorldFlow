@@ -1,4 +1,4 @@
-"""Validate the Phase 0 wire shapes and run deterministic contract fixtures."""
+"""Validate the Phase 0 and Phase 1 wire shapes and run deterministic contract fixtures."""
 
 import argparse
 from datetime import datetime
@@ -10,9 +10,11 @@ import sys
 from jsonschema import Draft202012Validator, FormatChecker, validators as schema_validators
 from jsonschema.exceptions import SchemaError
 
+from readonly_contract import response_issues
 from static_common import ROOT, load_json
 
-CONTRACTS = ("dependency-inventory", "dependency-install-plan", "dependency-install-result")
+SETUP_CONTRACTS = ("dependency-inventory", "dependency-install-plan", "dependency-install-result")
+CONTRACTS = (*SETUP_CONTRACTS, "readonly-request", "readonly-response")
 DRAFT = "https://json-schema.org/draft/2020-12/schema"
 WireValidator = schema_validators.extend(
     Draft202012Validator,
@@ -64,6 +66,8 @@ def contract_issues(validator, contract, payload):
     errors = {
         "schema:" + error.validator for error in validator.iter_errors(payload)
     }
+    if not errors and contract == "readonly-response":
+        return response_issues(payload)
     if errors or contract != "dependency-install-plan":
         return errors
     try:
@@ -108,8 +112,8 @@ def validate_fixtures(root):
         if errors != expected:
             raise ValueError(f"{file}: expected {sorted(expected)}, got {sorted(errors)}")
 
-    checked_in = {path.relative_to(fixtures) for path in fixtures.glob("*/*.json")}
-    if seen != checked_in or any(Path(name, "valid.json") not in seen for name in schemas):
+    checked_in = {path.relative_to(fixtures) for name in SETUP_CONTRACTS for path in (fixtures / name).glob("*.json")}
+    if seen != checked_in or any(Path(name, "valid.json") not in seen for name in SETUP_CONTRACTS):
         raise ValueError("fixture index must cover all contract fixtures and each valid case")
 
     plan_fixtures = fixtures / "dependency-install-plan"
@@ -121,6 +125,25 @@ def validate_fixtures(root):
     if canonical_plan_bytes(valid_plan) != (plan_fixtures / "golden-canonical.txt").read_bytes():
         raise ValueError("canonical plan bytes differ from the cross-language golden fixture")
     return len(seen)
+
+
+def validate_readonly_fixtures(root):
+    schemas = validators(root)
+    golden = load_json(root / "tests/fixtures/phase1/readonly-golden.json")
+    cases = [*golden["cases"], golden["png"]]
+    for case in cases:
+        request = case["request"]
+        response = case["response"]
+        for field in ("requestId", "projectFingerprint", "operation"):
+            if request[field] != response[field]:
+                raise ValueError(f"Phase 1 golden does not correlate by {field}")
+        issues = contract_issues(schemas["readonly-request"], "readonly-request", request)
+        if bool(issues) != case.get("invalidRequest", False):
+            raise ValueError(f"Phase 1 request golden mismatch: {request['operation']}, {sorted(issues)}")
+        issues = contract_issues(schemas["readonly-response"], "readonly-response", response)
+        if issues:
+            raise ValueError(f"Phase 1 response golden mismatch: {response['operation']}, {sorted(issues)}")
+    return len(cases)
 
 
 def main():
@@ -138,7 +161,7 @@ def main():
                 raise ValueError(", ".join(sorted(issues)))
             print(f"PASS: {args.contract} shape and applicable hash")
         else:
-            print(f"PASS: 3 schemas, {validate_fixtures(ROOT)} fixtures and canonical Plan bytes")
+            print(f"PASS: {len(CONTRACTS)} schemas, {validate_fixtures(ROOT)} Setup fixtures, canonical Plan bytes, {validate_readonly_fixtures(ROOT)} Read-only golden pairs")
     except SchemaError as error:
         print(f"FAIL: schema keyword {error.validator!r} at {list(error.path)}", file=sys.stderr)
         return 1
