@@ -8,11 +8,19 @@ using System.Text.RegularExpressions;
 
 namespace DarumaPPAP.PlateauWorldFlow
 {
+    /// <summary>
+    /// SetupとRead-only契約で共有するJSONを読み書きし、整数とその他の数値表記を区別する。
+    /// </summary>
     internal sealed class Json
     {
         internal static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, true);
         private static readonly Regex Tokens = new Regex(@"\G(?<value>""(?>[^""\\\x00-\x1f]|\\(?:[""\\/bfnrt]|u[0-9a-fA-F]{4}))*""|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\[\],:])", RegexOptions.CultureInvariant);
 
+        /// <summary>
+        /// 一つのJSONオブジェクトを復号する。
+        /// </summary>
+        /// <param name="text">復号するJSONテキスト。</param>
+        /// <returns>オブジェクトのキーと値を格納した辞書。</returns>
         internal static Dictionary<string, object> Parse(string text)
         {
             try
@@ -30,6 +38,26 @@ namespace DarumaPPAP.PlateauWorldFlow
             return fields.ToDictionary(field => field.key, field => field.value, StringComparer.Ordinal);
         }
 
+        /// <summary>
+        /// 有限の浮動小数点数を、カルチャに依存しないJSON数値に変換する。
+        /// </summary>
+        /// <param name="value">有限の浮動小数点数。</param>
+        /// <returns>JSONライターが数値として書き出せる値。</returns>
+        internal static object Real(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            return new Number(value.ToString("R", CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>
+        /// 契約データをJSONに書き出し、オブジェクトのキーを序数順にそろえる。
+        /// </summary>
+        /// <param name="value">書き出すJSON互換の値。</param>
+        /// <returns>JSONテキスト。</returns>
         internal static string Write(object value)
         {
             var output = new StringBuilder();
@@ -112,18 +140,31 @@ namespace DarumaPPAP.PlateauWorldFlow
             output.Append('"');
         }
 
+        /// <summary>
+        /// 指定したキーから、要求した型と一致する値を取得する。
+        /// </summary>
+        /// <typeparam name="T">読み取る値の型。</typeparam>
+        /// <param name="fields">読み取り対象のJSONオブジェクト。</param>
+        /// <param name="key">取得するキー。</param>
+        /// <returns>値が欠落、null、または型不一致の場合は要求した型の既定値。</returns>
         internal static T Field<T>(Dictionary<string, object> fields, string key)
         {
             // null、欠落、型不一致のいずれも呼び出し元には既定値を返す。
             return fields != null && fields.TryGetValue(key, out var value) && value is T result ? result : default;
         }
 
+        /// <summary>
+        /// 整数として扱わないJSON数値の表記を保持し、読み書きでその表記を維持する。
+        /// </summary>
         private sealed class Number
         {
             internal string Text { get; }
             internal Number(string text) => Text = text;
         }
 
+        /// <summary>
+        /// JSONの字句を順に読み、重複キーと深すぎる入れ子を拒否して一つのオブジェクトに復号する。
+        /// </summary>
         private sealed class Reader
         {
             private readonly string _text;

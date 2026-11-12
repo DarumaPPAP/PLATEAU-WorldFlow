@@ -2,7 +2,7 @@
 
 PLATEAUの3D都市モデルをUnity Editorへ取り込むため、場所の調査、範囲・品質の計画、承認付きImport、結果の検証をAIチャットから支援するOSSです。
 
-**Phase 0 / Setup Bootstrapは実装済み**。Unity EditorでPLATEAU SDKの依存診断と承認付きSetupを実行できます。初期検証基準は Unity `6000.3.10f1` 以上です。**Phase 1 / Read-only PoCは設計済み・実装前**。都市モデルのImportは後続Phaseで扱います。
+**Phase 0 / Setup Bootstrapは実装済み**。Unity EditorでPLATEAU SDKの依存診断と承認付きSetupを実行できます。初期検証基準は Unity `6000.3.10f1` 以上です。**Phase 1 / Read-only PoCは、範囲選択のCoreとJSON契約まで実装済み**。実SDK照会、PNG生成、MCP／公式CLI経由の操作は後続です。都市モデルのImportは後続Phaseで扱います。
 
 ## 開発
 
