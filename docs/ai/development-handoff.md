@@ -1,6 +1,6 @@
 # Codex Localへの引き継ぎ
 
-PR-01を利用者がレビューし、手動でSquash Mergeした後にPR-02を開始します。実装根拠は [AGENTS.md](../../AGENTS.md)、[正本](../architecture/system-spec.md)、[Phase 0仕様](../architecture/phase0-implementation.md)、[JSON契約](../contracts/README.md)、[検証方針](verification-policy.md) です。
+PR-01を利用者がレビューし、手動でSquash Mergeした後にPR-02を開始します。実装根拠は [AGENTS.md](../../AGENTS.md)、[正本](../architecture/system-spec.md)、[JSON契約](../contracts/README.md)、[検証方針](verification-policy.md) です。
 
 ## Baselineと作業環境
 
