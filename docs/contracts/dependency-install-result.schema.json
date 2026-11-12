@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/dependency-install-result.schema.json",
+  "title": "Dependency Install Result",
+  "description": "Phase 0 wire contract v1. Unknown properties are rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectFingerprint",
+    "jobId",
+    "planId",
+    "planHash",
+    "state",
+    "packages",
+    "evidencePaths",
+    "diagnostics"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "projectFingerprint": {
+      "$ref": "#/$defs/hash"
+    },
+    "jobId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}(?![\\s\\S])",
+      "maxLength": 64
+    },
+    "planId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}(?![\\s\\S])",
+      "maxLength": 64
+    },
+    "planHash": {
+      "$ref": "#/$defs/hash"
+    },
+    "state": {
+      "enum": [
+        "COMPLETED",
+        "PARTIAL",
+        "FAILED",
+        "CANCELLED"
+      ]
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packageId",
+          "state",
+          "resolvedVersion"
+        ],
+        "properties": {
+          "packageId": {
+            "$ref": "#/$defs/packageId"
+          },
+          "state": {
+            "enum": [
+              "ADDED",
+              "UNCHANGED",
+              "FAILED",
+              "NOT_ATTEMPTED"
+            ]
+          },
+          "resolvedVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,127}(?![\\s\\S])",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "evidencePaths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^Library/PLATEAUWorldFlow/Setup/[A-Za-z0-9_-]{1,64}/[A-Za-z0-9_-]{1,64}\\.json(?![\\s\\S])",
+        "maxLength": 172
+      },
+      "uniqueItems": true
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "maxLength": 64
+    },
+    "packageId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:\\.[a-z0-9][a-z0-9_-]*){2,}(?![\\s\\S])",
+      "maxLength": 128
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "location",
+        "retryable"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}(?![\\s\\S])",
+          "maxLength": 64
+        },
+        "location": {
+          "enum": [
+            "ENVIRONMENT",
+            "PACKAGE_LIST",
+            "MANIFEST",
+            "LOCK",
+            "PLAN",
+            "APPROVAL",
+            "UPM",
+            "RECOVERY",
+            "COMPILE",
+            "EVIDENCE"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
