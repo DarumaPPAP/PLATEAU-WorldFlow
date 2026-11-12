@@ -30,7 +30,20 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
         internal async Task<Catalog> ListAsync(int maxResults, CancellationToken cancellationToken)
         {
             var response = await GetAsync("plateau-datasets", cancellationToken).ConfigureAwait(false);
+            return ListCatalog(response, maxResults, cancellationToken);
+        }
+
+        /// <summary>
+        /// 公式カタログの最新Datasetと、同じ応答の自治体別公開出典を照合する。
+        /// </summary>
+        internal Catalog ListCatalog(Dictionary<string, object> response, int maxResults, CancellationToken cancellationToken)
+        {
             var entries = RequiredArray(response, "latest_citygml");
+            var published = Json.Field<object[]>(response, "citygml");
+            // 公式のcitygml一覧は自治体ごとに1件。重複や走査上限があれば同一Datasetの出典とは断定しない。
+            var sources = published != null && published.Length <= FileLimit
+                ? published.OfType<Dictionary<string, object>>().ToLookup(fields => Json.Field<string>(fields, "city_code"), StringComparer.Ordinal)
+                : null;
             var datasets = new Dictionary<string, Observation>(StringComparer.Ordinal);
             bool complete = true;
             foreach (var fields in entries.Take(FileLimit).OfType<Dictionary<string, object>>())
@@ -46,7 +59,17 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                 string title = Json.Field<string>(fields, "city");
                 var features = Json.Field<object[]>(fields, "feature_types");
                 var validFeatures = features != null && features.Length <= 64 && features.All(value => WireValues.Id(value as string)) ? features.Cast<string>() : null;
-                var dataset = new Dataset(id, WireValues.Text(title) ? title : null, validFeatures, null, null, null, null, DatasetSourceUrl(fields));
+                string sourceUrl = DatasetSourceUrl(fields);
+                if (sourceUrl == null && sources != null && Json.Field<string>(fields, "year") == "latest")
+                {
+                    var matches = sources[id].Take(2).ToArray();
+                    if (matches.Length == 1 && Json.Field<string>(matches[0], "id") == id && Json.Field<int>(matches[0], "year") > 0)
+                    {
+                        sourceUrl = DatasetSourceUrl(matches[0]);
+                    }
+                }
+
+                var dataset = new Dataset(id, WireValues.Text(title) ? title : null, validFeatures, null, null, null, null, sourceUrl);
                 datasets[id] = new Observation(dataset, Array.Empty<CoverageCell>(), Array.Empty<GridCode>(), false);
                 // Coreが1件分の超過を検出し、契約のtruncatedを返す。
                 if (datasets.Count > maxResults) return CatalogFrom(datasets.Values, false);
