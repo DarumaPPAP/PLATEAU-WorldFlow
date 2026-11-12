@@ -7,7 +7,6 @@ PLATEAUの3D都市モデルをUnity Editorへ取り込むため、場所の調�
 ## 開発
 
 - [システム設計仕様書](docs/architecture/system-spec.md)
-- [Phase 0実装仕様](docs/architecture/phase0-implementation.md)
 - [開発ルール](AGENTS.md)
 - [Setup JSON契約](docs/contracts/README.md)
 - [静的CIとUnity検証](docs/ai/verification-policy.md)
