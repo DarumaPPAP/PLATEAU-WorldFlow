@@ -51,7 +51,7 @@ Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](rea
 
 ### `coverage.inspect`
 
-- Request: `{source, datasetId, gridCodes[], maxResults}`。 `gridCodes` 省略時は上限内で確認できたコードのみ取得（取得可能な全メッシュが上限を超えたら打切り明示）。
+- Request: `{source, sourceReference, datasetId, gridCodes[], maxResults}`。`sourceReference` は必須。取得元の区分と識別子の両方が観測元と一致する場合のみ照会できる。不一致の場合は `BLOCKED / SOURCE_NOT_ALLOWED`。 `gridCodes` 省略時は上限内で確認できたコードのみ取得（取得可能な全メッシュが上限を超えたら打切り明示）。
 - Result: `{datasetId, availableGridCodes:[{code,extent,featureTypes,availableLods}], unavailableGridCodes, unverifiedGridCodes, truncated}`。
 - `extent` は `{south,west,north,east,crs}`。数値は有限、緯度は -90..90、経度は -180..180。経度180度を跨ぐ境界はPhase 1で明示的に `BLOCKED` または分割表現し、勝手に補正しない。
 - `availableLods` は存在が実証できた非負整数の配列、未確認は `null`。 `featureTypes` も未検証なら `null`。

@@ -52,9 +52,10 @@
           "input": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["source", "datasetId", "maxResults"],
+            "required": ["source", "sourceReference", "datasetId", "maxResults"],
             "properties": {
               "source": {"$ref": "#/$defs/source"},
+              "sourceReference": {"$ref": "#/$defs/id"},
               "datasetId": {"$ref": "#/$defs/id"},
               "gridCodes": {"type": "array", "items": {"$ref": "#/$defs/grid"}, "maxItems": 500},
               "maxResults": {"type": "integer", "minimum": 1, "maximum": 500}
@@ -124,7 +125,7 @@
       "type": "string",
       "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9_-]{0,63})(?![\\s\\S])",
       "not": {
-        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]|[A-Za-z0-9_-]{32,}"
+        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]"
       }
     },
     "uuid": {

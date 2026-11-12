@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 {
+    /// <summary>
+    /// Read-only操作の入力とProjectの一致を検証し、Dataset照会と範囲計画のJSON応答を組み立てる。
+    /// </summary>
     internal sealed class Coordinator
     {
         private readonly string _fingerprint;
@@ -19,6 +22,16 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
             _fingerprint = projectFingerprint;
         }
 
+        /// <summary>
+        /// Projectと取得元を照合してRead-only要求を評価し、操作別の応答を生成する。
+        /// </summary>
+        /// <param name="json">Read-only契約の要求JSON。</param>
+        /// <param name="catalog">現在の取得元から得た観測。未取得の場合はnull。</param>
+        /// <param name="now">観測の有効期間と応答時刻の判定に用いる時刻。</param>
+        /// <param name="snapshot">範囲計画の入力となる既存のCoverage。</param>
+        /// <param name="inspected">今回発行したCoverage。発行しなかった場合はnull。</param>
+        /// <param name="cancellationToken">処理開始前と応答生成前に確認するキャンセル通知。</param>
+        /// <returns>操作結果、判定状態、診断、証跡を格納した応答JSON。</returns>
         internal string Execute(string json, Catalog catalog, DateTimeOffset now, CoverageSnapshot snapshot, out CoverageSnapshot inspected, CancellationToken cancellationToken = default)
         {
             inspected = null;
@@ -91,11 +104,15 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
                 case "coverage.inspect":
                 {
                     var source = Json.Field<string>(input, "source");
+                    var reference = Json.Field<string>(input, "sourceReference");
                     var datasetId = Json.Field<string>(input, "datasetId");
                     var max = Json.Field<int>(input, "maxResults");
                     bool hasCodes = input.ContainsKey("gridCodes");
+                    // 取得元を安全に特定できない要求には、観測結果を開示しない。
+                    if (!WireValues.Id(reference)) return Error("BLOCKED", "SOURCE_NOT_ALLOWED", "sourceReference");
+
                     // 未知フィールドや不正な識別子を含む照会は処理しない。
-                    if (input.Count != (hasCodes ? 4 : 3) || !WireValues.Source(source) || !WireValues.Id(datasetId)) return Error("FAILED", "INVALID_INPUT", "input");
+                    if (input.Count != (hasCodes ? 5 : 4) || !WireValues.Source(source) || !WireValues.Id(datasetId)) return Error("FAILED", "INVALID_INPUT", "input");
 
                     // 一覧取得の負荷を要求の上限で制限する。
                     if (max < 1 || max > WireValues.MaxGridCodes) return Error("FAILED", "LIMIT_EXCEEDED", "maxResults");
@@ -108,11 +125,11 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
                         if (issue != null) return Error("FAILED", issue, "gridCodes");
                     }
 
+                    // 同じDataset IDでも、取得元が異なる観測は流用できない。
+                    if (catalog != null && (source != catalog.Source || reference != catalog.Reference)) return Error("BLOCKED", "SOURCE_NOT_ALLOWED", source != catalog.Source ? "source" : "sourceReference");
+
                     // 期限切れや未取得の観測結果を、存在なしとして扱わない。
                     if (catalog == null || now < catalog.CheckedAt || now >= catalog.ValidUntil) return Error("UNKNOWN", "COVERAGE_UNCONFIRMED", "datasetId");
-
-                    // 選択した取得元と異なる観測結果を返さない。
-                    if (source != catalog.Source) return Error("BLOCKED", "SOURCE_NOT_ALLOWED", "source");
 
                     if (!catalog.TryGet(datasetId, out var observation))
                     {

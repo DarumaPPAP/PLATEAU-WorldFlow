@@ -1,7 +1,7 @@
 {
   "dataset": {
-    "datasetId": "city-01",
-    "title": "検証用都市",
+    "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "title": "検証用都市（第１版）",
     "featureTypes": ["bldg"],
     "version": null,
     "publisher": null,
@@ -44,8 +44,8 @@
           "source": "LOCAL",
           "datasets": [
             {
-              "datasetId": "city-01",
-              "title": "検証用都市",
+              "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "title": "検証用都市（第１版）",
               "featureTypes": ["bldg"],
               "version": null,
               "publisher": null,
@@ -69,9 +69,10 @@
         "operation": "coverage.inspect",
         "input": {
           "source": "LOCAL",
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "gridCodes": ["533950", "533946", "533947", "533945", "533945"],
-          "maxResults": 500
+          "maxResults": 500,
+          "sourceReference": "local-01"
         }
       },
       "response": {
@@ -82,7 +83,7 @@
         "status": "PARTIAL",
         "checkedAt": "2026-11-12T00:00:00Z",
         "result": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "availableGridCodes": [
             {
               "code": "533945",
@@ -113,7 +114,7 @@
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "areas.plan",
         "input": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "selectedGridCodes": ["533950", "533946", "533945", "533947", "533945"],
           "coverageSnapshotId": "00000000-0000-4000-8000-000000000002",
           "coordinateReference": null,
@@ -155,7 +156,7 @@
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "areas.plan",
         "input": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "selectedGridCodes": ["533950", "533946", "533945", "533947", "533945"],
           "coverageSnapshotId": "00000000-0000-4000-8000-000000000001",
           "coordinateReference": null,
@@ -203,7 +204,13 @@
         "requestId": "00000000-0000-4000-8000-000000000006",
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "coverage.inspect",
-        "input": {"source": "LOCAL", "datasetId": "city-01", "gridCodes": ["533985"], "maxResults": 500}
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533985"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
       },
       "invalidRequest": true,
       "response": {
@@ -226,7 +233,7 @@
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "areas.plan",
         "input": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "selectedGridCodes": ["533947", "533945", "533945"],
           "coverageSnapshotId": "00000000-0000-4000-8000-000000000002",
           "coordinateReference": "EPSG:4326",
@@ -264,7 +271,13 @@
         "requestId": "00000000-0000-4000-8000-000000000009",
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "coverage.inspect",
-        "input": {"source": "LOCAL", "datasetId": "city-01", "gridCodes": ["533947"], "maxResults": 500}
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533947"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
       },
       "response": {
         "schemaVersion": 1,
@@ -274,7 +287,7 @@
         "status": "UNAVAILABLE",
         "checkedAt": "2026-11-12T00:00:00Z",
         "result": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "availableGridCodes": [],
           "unavailableGridCodes": ["533947"],
           "unverifiedGridCodes": [],
@@ -291,7 +304,13 @@
         "requestId": "00000000-0000-4000-8000-000000000010",
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "coverage.inspect",
-        "input": {"source": "LOCAL", "datasetId": "city-01", "gridCodes": ["533950"], "maxResults": 500}
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
       },
       "response": {
         "schemaVersion": 1,
@@ -301,7 +320,7 @@
         "status": "UNKNOWN",
         "checkedAt": "2026-11-12T00:00:00Z",
         "result": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "availableGridCodes": null,
           "unavailableGridCodes": null,
           "unverifiedGridCodes": ["533950"],
@@ -319,7 +338,7 @@
         "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
         "operation": "areas.plan",
         "input": {
-          "datasetId": "city-01",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "selectedGridCodes": ["533950", "533946", "533945", "533947", "533945"],
           "coverageSnapshotId": "00000000-0000-4000-8000-000000000010",
           "coordinateReference": null,
@@ -339,6 +358,61 @@
         "warnings": []
       },
       "at": "2026-11-12T00:05:00Z"
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000012",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950", "533946", "533947", "533945", "533945"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000012",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "SOURCE_NOT_ALLOWED", "location": "sourceReference", "retryable": false}],
+        "warnings": []
+      },
+      "catalogReference": "local-02"
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000013",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950", "533946", "533947", "533945", "533945"],
+          "maxResults": 500
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000013",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "SOURCE_NOT_ALLOWED", "location": "sourceReference", "retryable": false}],
+        "warnings": []
+      },
+      "invalidRequest": true
     }
   ],
   "png": {
@@ -365,7 +439,7 @@
         "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
         "byteLength": 100,
         "createdAt": "2026-11-12T00:00:00Z",
-        "sourceDatasetId": "city-01",
+        "sourceDatasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "planId": "00000000-0000-4000-8000-000000000003",
         "planRevision": 1,
         "crs": null,

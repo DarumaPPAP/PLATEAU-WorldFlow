@@ -35,6 +35,8 @@ class ReadonlyContractTests(unittest.TestCase):
         cases = [
             (1, ["status"], "READY"),
             (1, ["evidence"], []),
+            (0, ["result", "datasets", 0, "datasetId"], "ghp_exampletoken"),
+            (0, ["result", "datasets", 0, "title"], "city\nprivate"),
             (1, ["result", "availableGridCodes", 0, "extent", "south"], 91),
             (1, ["result", "availableGridCodes", 0, "extent", "west"], 141),
             (1, ["result", "availableGridCodes", 0, "code"], "533946"),
@@ -69,7 +71,8 @@ class ReadonlyContractTests(unittest.TestCase):
 
     def test_request_bounds_and_required_fields(self):
         for index, key, value in [(0, "maxResults", 21), (1, "gridCodes", ["533945"] * 501),
-                                  (2, "planRevision", 0), ("png", "width", 1025)]:
+                                  (1, "sourceReference", "ghp_exampletoken"), (1, "sourceReference", "D:/private"),
+                                  (1, "datasetId", "a" * 65), (2, "planRevision", 0), ("png", "width", 1025)]:
             with self.subTest(key=key):
                 case = self.golden["png"] if index == "png" else self.golden["cases"][index]
                 request = deepcopy(case["request"])
@@ -78,3 +81,11 @@ class ReadonlyContractTests(unittest.TestCase):
                 del request["input"][key]
                 if key != "gridCodes":
                     self.assertTrue(self.issues("request", request))
+
+    def test_dataset_id_accepts_minimum_long_length(self):
+        case = self.golden["cases"][1]
+        request = deepcopy(case["request"])
+        response = deepcopy(case["response"])
+        request["input"]["datasetId"] = response["result"]["datasetId"] = "a" * 32
+        self.assertFalse(self.issues("request", request))
+        self.assertFalse(self.issues("response", response))

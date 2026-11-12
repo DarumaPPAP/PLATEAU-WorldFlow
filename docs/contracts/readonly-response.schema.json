@@ -322,7 +322,7 @@
       "type": "string",
       "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9_-]{0,63})(?![\\s\\S])",
       "not": {
-        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]|[A-Za-z0-9_-]{32,}"
+        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]"
       }
     },
     "uuid": {
@@ -342,9 +342,9 @@
     },
     "safeText": {
       "type": "string",
-      "pattern": "^(?:[A-Za-z0-9\\u3000-\\u30ff\\u3400-\\u9fff][A-Za-z0-9\\u3000-\\u30ff\\u3400-\\u9fff ._()・-]{0,127})(?![\\s\\S])",
+      "pattern": "^(?:[A-Za-z0-9\\u3000-\\u30ff\\u3400-\\u9fff\\uFF10-\\uFF19\\uFF08][A-Za-z0-9\\u3000-\\u30ff\\u3400-\\u9fff\\uFF10-\\uFF19\\uFF08\\uFF09 ._()・-]{0,127})(?![\\s\\S])",
       "not": {
-        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]|[A-Za-z0-9_-]{32,}"
+        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]"
       },
       "allOf": [{"not": {"pattern": "\\.\\."}}]
     },
@@ -352,7 +352,7 @@
       "type": "string",
       "pattern": "^(?:https://(?:www\\.mlit\\.go\\.jp|www\\.geospatial\\.jp|www\\.gsi\\.go\\.jp|www\\.creativecommons\\.org|creativecommons\\.org|www\\.digital\\.go\\.jp)(?:/[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*)*/?)(?![\\s\\S])",
       "not": {
-        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]|[A-Za-z0-9_-]{32,}"
+        "pattern": "[Gg][Hh][PpOoUuSsRr]_|[Gg][Ii][Tt][Hh][Uu][Bb]_[Pp][Aa][Tt]_|[Ss][Kk]-|[Aa][Kk][Ii][Aa][A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{8}|[Bb][Ee][Aa][Rr][Ee][Rr][ _-]"
       },
       "maxLength": 256
     },

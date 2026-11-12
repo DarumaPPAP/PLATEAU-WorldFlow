@@ -7,8 +7,14 @@ using NUnit.Framework;
 
 namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 {
+    /// <summary>
+    /// 共有Goldenとの照合を通じて、Read-only操作の入力境界と応答の意味を検証する。
+    /// </summary>
     internal sealed class ReadonlyTests
     {
+        /// <summary>
+        /// Fake Catalogの応答を共有Goldenと比較し、取得元が違うCatalogからCoverageを発行しないことも確認する。
+        /// </summary>
         [Test]
         public void FakeSourceMatchesSharedGolden()
         {
@@ -32,18 +38,54 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
             var now = new DateTimeOffset(2026, 11, 12, 0, 0, 0, TimeSpan.Zero);
             var coordinator = new Coordinator(new string('1', 64));
             var source = new Catalog("LOCAL", "local-01", now, now.AddMinutes(5), new[] { observed });
+            var otherSource = new Catalog("LOCAL", "local-02", now, now.AddMinutes(5), new[] { observed });
             CoverageSnapshot snapshot = null;
             foreach (Dictionary<string, object> test in Json.Field<object[]>(golden, "cases"))
             {
                 var request = Json.Field<Dictionary<string, object>>(test, "request");
                 var at = Json.Field<string>(test, "at");
                 var checkedAt = at == null ? now : DateTimeOffset.ParseExact(at, Digests.TimestampFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
-                var actual = coordinator.Execute(Json.Write(request), source, checkedAt, snapshot, out var inspected);
+                var catalog = Json.Field<string>(test, "catalogReference") == otherSource.Reference ? otherSource : source;
+                var actual = coordinator.Execute(Json.Write(request), catalog, checkedAt, snapshot, out var inspected);
                 Assert.That(actual, Is.EqualTo(Json.Write(test["response"])), Json.Write(request));
+                if (catalog == otherSource)
+                {
+                    Assert.That(inspected, Is.Null);
+                }
+
                 snapshot = inspected ?? snapshot;
             }
         }
 
+        /// <summary>
+        /// Dataset識別子の長さ上限と、秘密情報の形式およびパスの拒否を検証する。
+        /// </summary>
+        /// <param name="id">Datasetに設定する識別子。</param>
+        /// <param name="accepted">Datasetとして受理されることを期待する場合はtrue。</param>
+        [TestCase("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", true)]
+        [TestCase("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", false)]
+        [TestCase("ghp_exampletoken", false)]
+        [TestCase("D:/private", false)]
+        public void DatasetIdValidatesLengthAndRejectsUnsafeValues(string id, bool accepted)
+        {
+            if (accepted)
+            {
+                Assert.That(new Dataset(id, null, null, null, null, null, null, null).Id, Is.EqualTo(id));
+            }
+            else
+            {
+                Assert.Throws<ArgumentException>(() => new Dataset(id, null, null, null, null, null, null, null));
+            }
+        }
+
+        /// <summary>
+        /// 座標が範囲外、非有限、または順序が不正な矩形と、不正な座標参照系を拒否することを確認する。
+        /// </summary>
+        /// <param name="south">南端の緯度。</param>
+        /// <param name="west">西端の経度。</param>
+        /// <param name="north">北端の緯度。</param>
+        /// <param name="east">東端の経度。</param>
+        /// <param name="crs">矩形に指定する座標参照系。</param>
         [TestCase(-91, 139, 36, 140, "EPSG:4326")]
         [TestCase(35, 141, 36, 140, "EPSG:4326")]
         [TestCase(36, 139, 36, 140, null)]

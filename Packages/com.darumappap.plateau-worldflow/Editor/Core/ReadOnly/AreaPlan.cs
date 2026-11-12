@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 {
+    /// <summary>
+    /// 指定されたメッシュをCoverageの観測結果で分類し、座標参照系を確認できる範囲の外接矩形を求める。
+    /// </summary>
     internal sealed class AreaPlan
     {
         internal string Id { get; }
@@ -16,6 +19,14 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
         internal IReadOnlyList<string> Unverified { get; }
         internal bool HasUnverifiedCrs { get; }
 
+        /// <summary>
+        /// 選択メッシュをCoverageと照合し、同じWGS84を確認できる観測から外接矩形を求める。
+        /// </summary>
+        /// <param name="id">選択案の識別子。</param>
+        /// <param name="revision">呼び出し元が指定した選択案の版。</param>
+        /// <param name="snapshot">選択範囲を照合するCoverage。</param>
+        /// <param name="selected">利用者が選んだ地域メッシュコード。</param>
+        /// <param name="crs">利用者が指定した座標参照系。未指定の場合はnull。</param>
         internal AreaPlan(string id, int revision, CoverageSnapshot snapshot, IEnumerable<string> selected, string crs)
         {
             Id = id;
@@ -63,6 +74,10 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 
         internal bool CrossesLongitudeBoundary { get; }
 
+        /// <summary>
+        /// 選択範囲の分類と外接矩形を契約の結果形式に変換する。
+        /// </summary>
+        /// <returns>投影面積を未計算として記録した範囲計画のJSONオブジェクト。</returns>
         internal Dictionary<string, object> ToJson() => Json.Object(("planId", Id), ("planRevision", Revision), ("coverageSnapshotId", SnapshotId), ("selectedGridCodes", Selected), ("coveredGridCodes", Covered), ("missingGridCodes", Missing), ("unverifiedGridCodes", Unverified), ("extent", Extent?.ToJson()), ("overlap", null), ("estimatedAreaSquareMeters", null), ("areaMethod", "NOT_COMPUTED"));
     }
 }

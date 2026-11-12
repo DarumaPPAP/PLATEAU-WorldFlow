@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 {
+    /// <summary>
+    /// 公開可能なDataset識別子、表示情報、出典を検証して保持する。
+    /// </summary>
     internal sealed class Dataset
     {
         internal string Id { get; }
@@ -31,6 +34,10 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
             SourceUrl = sourceUrl;
         }
 
+        /// <summary>
+        /// Datasetの公開用メタデータを契約の結果形式に変換する。
+        /// </summary>
+        /// <returns>未取得の項目をnullで保持したDatasetのJSONオブジェクト。</returns>
         internal Dictionary<string, object> ToJson() => Json.Object(("datasetId", Id), ("title", Title), ("featureTypes", FeatureTypes), ("version", Version), ("publisher", Publisher), ("licenseId", LicenseId), ("licenseUrl", LicenseUrl), ("sourceUrl", SourceUrl));
     }
 }

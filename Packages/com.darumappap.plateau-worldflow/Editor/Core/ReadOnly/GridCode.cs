@@ -2,6 +2,9 @@ using System;
 
 namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 {
+    /// <summary>
+    /// Read-only契約が扱う地域メッシュの形式を検証し、元のコードを保持する。
+    /// </summary>
     internal sealed class GridCode
     {
         internal string Value { get; }

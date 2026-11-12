@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
 {
+    /// <summary>
+    /// 有限の緯度経度と座標参照系を保持し、経度境界をまたぐ反転した矩形を拒否する。
+    /// </summary>
     internal sealed class Extent
     {
         internal double South { get; }
@@ -25,6 +28,9 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
             Crs = crs;
         }
 
+        /// <summary>
+        /// 緯度経度をJSON数値に変換し、座標参照系と共に返す。
+        /// </summary>
         internal Dictionary<string, object> ToJson() => Json.Object(("south", Json.Real(South)), ("west", Json.Real(West)), ("north", Json.Real(North)), ("east", Json.Real(East)), ("crs", Crs));
     }
 }
