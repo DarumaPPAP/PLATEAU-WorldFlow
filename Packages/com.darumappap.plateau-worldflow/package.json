@@ -2,7 +2,7 @@
   "name": "com.darumappap.plateau-worldflow",
   "version": "0.1.0",
   "displayName": "PLATEAU WorldFlow",
-  "description": "Repository foundation for AI-assisted PLATEAU city-model workflows in the Unity Editor. Editor functionality is planned.",
+  "description": "Unity Editor setup for PLATEAU SDK dependency checks and user-approved installation. City-model planning and import are planned for later phases.",
   "unity": "6000.3",
   "unityRelease": "10f1",
   "license": "MIT",
