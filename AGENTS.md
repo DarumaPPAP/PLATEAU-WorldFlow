@@ -4,6 +4,7 @@
 
 - 製品方針は[システム設計仕様書](docs/architecture/system-spec.md)を正本とする。
 - 各Phaseの範囲は正本の第9章、検証結果の扱いは[検証方針](docs/ai/verification-policy.md)に従う。
+- Phase 1の実装に入る際は[Read-only PoC仕様](docs/architecture/phase1-readonly-poc.md)、[Read-only契約](docs/contracts/phase1-readonly.md)、[API根拠](docs/compatibility/phase1-api-evidence.md)、[Codex引き継ぎ](docs/ai/phase1-codex-handoff.md)を読む。
 - 現行のSetup JSONは[契約と実行前条件](docs/contracts/README.md)を参照する。
 - 作業開始前に対象Phase、実装Baseline、対象Project、未解決の設計判断を確認する。
 
@@ -14,20 +15,12 @@
 - 調査済みの事実、推定、ユーザーが決める項目を区別する。
 - AIチャットを主UIとし、常設のSetup Windowは要件にしない。
 
-## PR-01の範囲
+## 現在の実装境界
 
-- Repositoryの設計、Context、JSON Schema、匿名Fixture、Skills、静的CIを整備する。
-- UPMのmanifest、説明、権利表示、メタデータを整備する。
-- Unity C#、SDK導入、Editorコンパイル、実操作E2EはPR-02の責務とする。
-- 配布用Tag、GitHub Release、CityGML、第三者サンプルを追加しない。
-
-## PR-02の範囲
-
-- PR-01の手動Merge後、最新の `main` を取得してSHAを記録する。
-- SDKを参照しないEditor CoreとSetupで、診断・Plan・明示承認・非同期UPM・復旧を実装する。
-- SDKなしCompile、EditMode、承認付きの実操作を別々に検証する。
-- CityGML Import、Toolkits、MCP/CLI Adapter、動画、Runtime Streamingは後続Phaseで扱う。
-- 詳細は[Codex Localへの引き継ぎ](docs/ai/development-handoff.md)を読む。
+- Phase 0（Repository基盤、依存Setup/承認Gate、Editor Test）はPR #1・#2で実装済み。既存の動作と証跡を壊さない。
+- Phase 1はRead-only Core、PLATEAU Dataset照会、Scene非変更の範囲PNG、任意MCP/公式CLI Adapter。仕様がMergeされても実装完了と扱わない。
+- 実装順序と最小テストは[Phase 1 Codex handoff](docs/ai/phase1-codex-handoff.md)に従う。最初はCore/ContractだけのPRとし、後続を一度に実装しない。
+- CityGML Import、Sceneへのモデル配置、動画、Toolkits、Runtime StreamingはPhase 1で禁止。
 
 ## 固定識別子
 
@@ -51,7 +44,7 @@
 
 ## Project変更
 
-- 読み取り診断と計画の作成はProjectを変更せずに行う。
+- 読み取り診断と計画の作成はProjectを変更せずに行う。Phase 1の明示的なPNG Evidence保存は `Library/PLATEAUWorldFlow/Preview/` に限定し、Assets/Scene/Packageは不変とする。
 - Package追加・更新・削除、Registry変更、Import、AssetやSceneの変更・上書きは事前承認が必要。
 - Planの内容、Project、Revision、Source、TagまたはSHA、影響を固定してから承認を求める。
 - Editor内の実ユーザー承認を信頼境界に記録する。JSONの `approved` は承認証跡として使わない。
