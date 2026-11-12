@@ -20,7 +20,7 @@ Phase 1のPNGは**都市モデルのレンダリング画像ではない**。デ
 1. Phase 0の依存Inventory/Setup Jobを変更せず読み取る共通入口。SDK未導入時も使用可能。
 2. SDKの**Datasetメタデータ照会**（一覧、ID、タイトル、feature types、取得時刻、参照元）と**GridCode/Extent/LOD有無**の問い合わせ。実際に確認できた値だけ返す。
 3. 検証済みGridCodeを選択し、範囲の輪郭、重複、概略面積、データがあるメッシュを比較できるRead-only Plan。
-4. Editor内の一時メモリでPNG範囲図を構成。許可されたProject外の専用一時/Evidenceディレクトリだけに明示要求時保存。Scene・Assets・ProjectSettings・manifest/lockは変更禁止。
+4. Editor内の一時メモリでPNG範囲図を構成。許可されたProject-localの `Library/PLATEAUWorldFlow/Preview/` にだけ明示要求時保存。Scene・Assets・ProjectSettings・manifest/lockは変更禁止。
 5. UnityMCPと公式Unity CLI/Pipelineそれぞれの**任意Adapter**。同じCoreを呼び、同じ意味論とSchemaを返す。
 6. 生成したPNGが呼び出し側AIクライアントで視認可能かを独立検証。画像配送が不可能な経路は `ARTIFACT_ONLY` と記録し、画像表示可能と偽らない。
 
