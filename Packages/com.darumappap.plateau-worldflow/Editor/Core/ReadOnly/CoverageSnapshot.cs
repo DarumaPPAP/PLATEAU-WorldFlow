@@ -35,7 +35,7 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
             ProjectFingerprint = fingerprint;
             DatasetId = observation.Dataset.Id;
             Catalog = catalog;
-            _enumerationComplete = requested != null || observation.EnumerationComplete;
+            _enumerationComplete = observation.EnumerationComplete;
             var codes = (requested ?? observation.AvailableCodes).Distinct(StringComparer.Ordinal).OrderBy(code => code, StringComparer.Ordinal).Take(maxResults + 1).ToArray();
             Truncated = codes.Length > maxResults;
             _available = new Dictionary<string, CoverageCell>(StringComparer.Ordinal);

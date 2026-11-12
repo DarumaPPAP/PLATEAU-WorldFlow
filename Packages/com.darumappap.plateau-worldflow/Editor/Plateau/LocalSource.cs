@@ -40,6 +40,15 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
         /// <returns>許可済み取得元に対応するDataset観測。</returns>
         internal Catalog Inspect(IReadOnlyCollection<string> requested, CancellationToken cancellationToken)
         {
+            var timer = Stopwatch.StartNew();
+            return Inspect(requested, cancellationToken, EntryLimit, () => timer.Elapsed >= TimeSpan.FromSeconds(3));
+        }
+
+        /// <summary>
+        /// ファイルシステムの走査上限を適用し、打ち切り時に不在の判定を抑止する。
+        /// </summary>
+        internal Catalog Inspect(IReadOnlyCollection<string> requested, CancellationToken cancellationToken, int entryLimit, Func<bool> timeExceeded)
+        {
             cancellationToken.ThrowIfCancellationRequested();
             for (var directory = new DirectoryInfo(_root); directory != null; directory = directory.Parent)
             {
@@ -59,7 +68,6 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
             var cells = new Dictionary<string, (Extent Extent, HashSet<string> Features)>(StringComparer.Ordinal);
             var pending = new Stack<DirectoryInfo>();
             pending.Push(udx);
-            var timer = Stopwatch.StartNew();
             bool complete = true;
             bool stopped = false;
             int entries = 0;
@@ -68,7 +76,7 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                 foreach (var entry in pending.Pop().EnumerateFileSystemInfos())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (++entries > EntryLimit || timer.Elapsed >= TimeSpan.FromSeconds(3))
+                    if (++entries > entryLimit || timeExceeded())
                     {
                         complete = false;
                         stopped = true;
@@ -135,7 +143,7 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
             cancellationToken.ThrowIfCancellationRequested();
             var allFeatures = complete && filter == null ? cells.Values.SelectMany(cell => cell.Features).Distinct(StringComparer.Ordinal).Take(65).ToArray() : null;
             var dataset = new Dataset(_datasetId, null, allFeatures?.Length > 64 ? null : allFeatures, null, null, null, null, null);
-            var available = cells.Select(pair => new CoverageCell(new CoreGridCode(pair.Key), pair.Value.Extent, !complete || pair.Value.Features.Count > 64 ? null : pair.Value.Features, null));
+            var available = cells.Select(pair => new CoverageCell(new CoreGridCode(pair.Key), pair.Value.Extent, pair.Value.Features.Count > 64 ? null : pair.Value.Features, null));
             var missing = complete && filter != null ? filter.Where(value => !cells.ContainsKey(value)).Where(IsValidCode).Select(value => new CoreGridCode(value)) : Enumerable.Empty<CoreGridCode>();
             var observed = new Observation(dataset, available, missing, complete);
             var checkedAt = DateTimeOffset.UtcNow;

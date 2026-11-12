@@ -41,5 +41,35 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
             var source = new LocalSource("fixture", "test-city", Path.GetTempPath());
             Assert.Throws<OperationCanceledException>(() => source.Inspect(null, new CancellationToken(true)));
         }
+
+        /// <summary>
+        /// 件数・時間の打切り時にメッシュの存在を残し、残りの属性と不在を確定しない。
+        /// </summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void IncompleteDirectoryPreservesExistenceWithoutClaimingAbsence(bool timeLimit)
+        {
+            string root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string building = Directory.CreateDirectory(Path.Combine(root, "udx", "bldg")).FullName;
+            try
+            {
+                File.WriteAllText(Path.Combine(building, "53394525_bldg_6697_op.gml"), "");
+                File.WriteAllText(Path.Combine(building, "53394526_bldg_6697_op.gml"), "");
+                var requested = new[] { "53394525", "53394526" };
+                int checks = 0;
+                var source = new LocalSource("fixture", "test-city", root);
+                var observed = source.Inspect(requested, CancellationToken.None, timeLimit ? 10 : 2, () => timeLimit && ++checks > 2).Observations.Single();
+                Assert.That(observed.EnumerationComplete, Is.False);
+                string present = observed.AvailableCodes.Single();
+                Assert.That(observed.TryGetCell(present, out var cell), Is.True);
+                Assert.That(cell.FeatureTypes, Is.Null);
+                Assert.That(cell.AvailableLods, Is.Null);
+                Assert.That(observed.IsMissing(requested.Single(code => code != present)), Is.False);
+            }
+            finally
+            {
+                Directory.Delete(root, true);
+            }
+        }
     }
 }

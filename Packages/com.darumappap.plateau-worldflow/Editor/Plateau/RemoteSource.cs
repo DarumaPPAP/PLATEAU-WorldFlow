@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -45,7 +46,7 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                 string title = Json.Field<string>(fields, "city");
                 var features = Json.Field<object[]>(fields, "feature_types");
                 var validFeatures = features != null && features.Length <= 64 && features.All(value => WireValues.Id(value as string)) ? features.Cast<string>() : null;
-                var dataset = new Dataset(id, WireValues.Text(title) ? title : null, validFeatures, null, null, null, null, "https://www.mlit.go.jp/plateau/");
+                var dataset = new Dataset(id, WireValues.Text(title) ? title : null, validFeatures, null, null, null, null, DatasetSourceUrl(fields));
                 datasets[id] = new Observation(dataset, Array.Empty<CoverageCell>(), Array.Empty<GridCode>(), false);
                 // Coreが1件分の超過を検出し、契約のtruncatedを返す。
                 if (datasets.Count > maxResults) return CatalogFrom(datasets.Values, false);
@@ -65,6 +66,15 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
             }
 
             var response = await GetAsync("citygml/" + datasetId, cancellationToken).ConfigureAwait(false);
+            var timer = Stopwatch.StartNew();
+            return InspectIndex(response, datasetId, requested, cancellationToken, FileLimit, () => timer.Elapsed >= TimeSpan.FromSeconds(3));
+        }
+
+        /// <summary>
+        /// 応答に含まれる索引を上限内で走査し、確認済みメッシュと観測の完全性を返す。
+        /// </summary>
+        internal Catalog InspectIndex(Dictionary<string, object> response, string datasetId, IReadOnlyCollection<string> requested, CancellationToken cancellationToken, int fileLimit, Func<bool> timeExceeded)
+        {
             var cities = RequiredArray(response, "cities");
             var matching = cities.OfType<Dictionary<string, object>>().Where(city => Json.Field<string>(city, "cityCode") == datasetId).ToArray();
             if (matching.Length != 1 || cities.Length != 1 || !(matching[0].TryGetValue("year", out var yearValue) && yearValue is int year && year > 0) || Json.Field<Dictionary<string, object>>(matching[0], "files") == null)
@@ -77,6 +87,7 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
             var filter = requested == null ? null : new HashSet<string>(requested, StringComparer.Ordinal);
             var cells = new Dictionary<string, (HashSet<string> Features, HashSet<int> Lods)>(StringComparer.Ordinal);
             bool complete = true;
+            bool stopped = false;
             int examined = 0;
             foreach (var feature in files)
             {
@@ -89,9 +100,10 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                 foreach (var entry in list)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (++examined > FileLimit)
+                    if (++examined > fileLimit || timeExceeded())
                     {
                         complete = false;
+                        stopped = true;
                         break;
                     }
 
@@ -124,7 +136,7 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                     }
                 }
 
-                if (examined > FileLimit)
+                if (stopped)
                 {
                     break;
                 }
@@ -143,13 +155,23 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
 
                 var bounds = grid.Extent;
                 var extent = new Extent(bounds.Min.Latitude, bounds.Min.Longitude, bounds.Max.Latitude, bounds.Max.Longitude, null);
-                var features = complete && pair.Value.Features.Count <= 64 ? pair.Value.Features : null;
+                var features = pair.Value.Features.Count <= 64 ? pair.Value.Features : null;
                 available.Add(new CoverageCell(new GridCode(pair.Key), extent, features, pair.Value.Lods.Count == 0 ? null : pair.Value.Lods));
             }
 
             string title = Json.Field<string>(city, "cityName");
-            var dataset = new Dataset(datasetId, WireValues.Text(title) ? title : null, null, year.ToString(CultureInfo.InvariantCulture), null, null, null, "https://www.mlit.go.jp/plateau/");
+            var dataset = new Dataset(datasetId, WireValues.Text(title) ? title : null, null, year.ToString(CultureInfo.InvariantCulture), null, null, null, DatasetSourceUrl(city));
             return CatalogFrom(new[] { new Observation(dataset, available, Array.Empty<GridCode>(), complete) }, true);
+        }
+
+        /// <summary>
+        /// 公式メタデータに明示されたG空間情報センターの個別Datasetページを検証する。
+        /// </summary>
+        internal string DatasetSourceUrl(Dictionary<string, object> fields)
+        {
+            const string prefix = "https://www.geospatial.jp/ckan/dataset/";
+            string url = Json.Field<string>(fields, "gspatialjp_dataset_url");
+            return url != null && url.Length > prefix.Length && url.StartsWith(prefix, StringComparison.Ordinal) && WireValues.Url(url) && WireValues.Id(url.Substring(prefix.Length).TrimEnd('/')) ? url : null;
         }
 
         private async Task<Dictionary<string, object>> GetAsync(string resource, CancellationToken cancellationToken)
