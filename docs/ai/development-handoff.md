@@ -1,6 +1,6 @@
-# Codex Localへの引き継ぎ
+# Codex Localへの引き継ぎ（Phase 0完了記録）
 
-PR-01を利用者がレビューし、手動でSquash Mergeした後にPR-02を開始します。実装根拠は [AGENTS.md](../../AGENTS.md)、[正本](../architecture/system-spec.md)、[JSON契約](../contracts/README.md)、[検証方針](verification-policy.md) です。
+**Phase 0のPR-01/02はMerge済みです。** 本文は当時の実装引き継ぎ記録として保持します。**現在の作業開始資料は [Phase 1 Codex handoff](phase1-codex-handoff.md)** です。開発時は [AGENTS.md](../../AGENTS.md)、[システム仕様](../architecture/system-spec.md)、[検証方針](verification-policy.md) を参照してください。
 
 ## Baselineと作業環境
 
@@ -30,4 +30,4 @@ PR-01を利用者がレビューし、手動でSquash Mergeした後にPR-02を�
 | EditMode | 実際の起動コマンドとテストフィルタ | | |
 | 実操作E2E | 診断・保留・承認・再診断の操作とU-ID | | |
 
-PR-01で用意したのは静的契約とPackage基盤です。Editor C#、Package導入、Unity Compile、EditMode、実操作E2EはPR-02の対象です。MCP／CLI Adapter、都市モデルImport、動画、Toolkits、Runtime Streamingは後続Phaseの対象です。PR-02でも最終Mergeは利用者が判断します。
+上記の記録欄はPhase 0の履歴です。Phase 1の実装・確認手順は[専用引き継ぎ](phase1-codex-handoff.md)を利用してください。CityGML Import、動画、Toolkits、Runtime Streamingは後続Phaseの対象です。
