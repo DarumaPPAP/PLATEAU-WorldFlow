@@ -17,7 +17,7 @@ namespace DarumaPPAP.PlateauWorldFlow
     internal sealed class Bootstrap
     {
         private const string Menu = "Tools/PLATEAU WorldFlow/";
-        private const string SessionKey = "DarumaPPAP.PlateauWorldFlow.InitialDiagnostic.";
+        private const string NoticeKeyPrefix = "DarumaPPAP.PlateauWorldFlow.InitialDiagnostic.";
         private const double RecoveryDelaySeconds = 10;
         private static readonly Bootstrap Instance = new Bootstrap();
         private readonly string _project = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
@@ -168,22 +168,19 @@ namespace DarumaPPAP.PlateauWorldFlow
         {
             // 診断・UPM処理の途中では初回通知を消費せず、安全な次の診断に委ねる。
             if (Application.isBatchMode || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode || hasPendingJob || _add != null || _list != null || _inspectQueued) return;
-            // キャッシュとPackage構成から判定できない状態では、初回の判定を保留する。
-            if (diagnostic.Status == "UNKNOWN") return;
+            // SDKが不足している場合だけ通知済みにする。その他の診断結果では記録しない。
+            if (diagnostic.Status != "MISSING") return;
 
             var package = PackageInfo.FindForAssembly(typeof(Bootstrap).Assembly);
-            string key = SessionKey + _store.Fingerprint + "." + package?.version + "." + package?.packageId;
-            // ダイアログを表示する前に記録し、Editorイベントの再入やReloadによる重複を防ぐ。
-            if (SessionState.GetBool(key, false)) return;
-            SessionState.SetBool(key, true);
+            string key = NoticeKeyPrefix + _store.Fingerprint + "." + package?.version + "." + package?.packageId;
+            // Editor再起動後も通知履歴を保持し、ダイアログ表示前に記録して再入を防ぐ。
+            if (EditorPrefs.GetBool(key, false)) return;
+            EditorPrefs.SetBool(key, true);
 
-            if (diagnostic.Status == "MISSING")
-            {
-                string instructions = _plan == null
-                    ? $"導入元: {DependencyCatalog.Source}\nPackage: {DependencyCatalog.Version}\n\nGitとGit LFSの状態を確認し、Tools > PLATEAU WorldFlow > Check Dependencies で再診断してください。"
-                    : $"導入元: {_plan.Source}\nPackage: {DependencyCatalog.Version}\n\n追加内容とProjectへの影響は、Tools > PLATEAU WorldFlow > Review and Install SDK で確認できます。";
-                EditorUtility.DisplayDialog("PLATEAU SDKのセットアップ案内", "このProjectにはPLATEAU SDKが導入されていません。\n\n" + instructions, "閉じる");
-            }
+            string instructions = _plan == null
+                ? $"導入元: {DependencyCatalog.Source}\nPackage: {DependencyCatalog.Version}\n\nGitとGit LFSの状態を確認し、Tools > PLATEAU WorldFlow > Check Dependencies で再診断してください。"
+                : $"導入元: {_plan.Source}\nPackage: {DependencyCatalog.Version}\n\n追加内容とProjectへの影響は、Tools > PLATEAU WorldFlow > Review and Install SDK で確認できます。";
+            EditorUtility.DisplayDialog("PLATEAU SDKのセットアップ案内", "このProjectにはPLATEAU SDKが導入されていません。\n\n" + instructions, "閉じる");
         }
 
         private void Reconcile(Dictionary<string, object> job, ProjectSnapshot snapshot, SdkDiagnostic diagnostic, bool listed)
