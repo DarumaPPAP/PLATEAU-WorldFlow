@@ -125,7 +125,8 @@ namespace DarumaPPAP.PlateauWorldFlow
                 WriteAtomic(Path.Combine(directory, "inventory.json"), diagnostic.Inventory);
                 evidencePaths.Add($"{RelativeRoot}/{id}/inventory.json");
             }
-            var diagnostics = failure == null ? Array.Empty<object>() : new[] { SdkDiagnostic.Diagnostic(failure, "UPM", state == "FAILED") };
+            string location = failure == "COMPILE_OR_CAPABILITY_FAILED" ? "COMPILE" : diagnostic == null ? "PLAN" : "UPM";
+            var diagnostics = failure == null ? Array.Empty<object>() : new[] { SdkDiagnostic.Diagnostic(failure, location, state == "FAILED") };
             var package = Json.Object(("packageId", DependencyCatalog.PackageId), ("state", diagnostic == null ? "NOT_ATTEMPTED" : resolved ? "ADDED" : "FAILED"), ("resolvedVersion", diagnostic?.Version));
             var result = Json.Object(("schemaVersion", 1), ("jobId", id), ("planId", plan.Id), ("planHash", plan.Hash), ("projectFingerprint", Fingerprint), ("state", state), ("packages", new[] { package }), ("evidencePaths", evidencePaths), ("diagnostics", diagnostics));
             WriteAtomic(Path.Combine(directory, "result.json"), Json.Write(result));

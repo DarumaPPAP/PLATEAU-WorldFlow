@@ -3,63 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Xml;
-using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace DarumaPPAP.PlateauWorldFlow
 {
     internal sealed class Json
     {
         internal static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, true);
+        private static readonly Regex Tokens = new Regex(@"\G(?<value>""(?>[^""\\\x00-\x1f]|\\(?:[""\\/bfnrt]|u[0-9a-fA-F]{4}))*""|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\[\],:])", RegexOptions.CultureInvariant);
 
         internal static Dictionary<string, object> Parse(string text)
         {
             try
             {
-                var bytes = Utf8.GetBytes(text);
-                var quotas = new XmlDictionaryReaderQuotas { MaxDepth = 48, MaxStringContentLength = 1048576, MaxArrayLength = 65536, MaxNameTableCharCount = 1048576 };
-                using var reader = JsonReaderWriterFactory.CreateJsonReader(bytes, quotas);
-                var value = Read(XElement.Load(reader));
-                return value as Dictionary<string, object> ?? throw new FormatException("Expected a JSON object.");
+                return new Reader(text).ReadObject();
             }
-            catch (Exception error) when (error is XmlException || error is ArgumentException)
+            catch (EncoderFallbackException error)
             {
-                throw new FormatException("Invalid JSON.", error);
-            }
-        }
-
-        private static object Read(XElement element)
-        {
-            switch ((string)element.Attribute("type"))
-            {
-                case "object":
-                    var fields = new Dictionary<string, object>(StringComparer.Ordinal);
-                    foreach (var child in element.Elements())
-                    {
-                        var name = (string)child.Attribute("item") ?? child.Name.LocalName;
-                        if (!fields.TryAdd(name, Read(child)))
-                        {
-                            throw new FormatException("Duplicate JSON property.");
-                        }
-                    }
-                    return fields;
-                case "array":
-                    return element.Elements().Select(Read).ToArray();
-                case "null":
-                    return null;
-                case "boolean":
-                    return bool.Parse(element.Value);
-                case "number":
-                    if (int.TryParse(element.Value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out int integer))
-                    {
-                        return integer;
-                    }
-                    return new Number(element.Value);
-                default:
-                    Utf8.GetByteCount(element.Value);
-                    return element.Value;
+                throw new FormatException("Invalid Unicode in JSON.", error);
             }
         }
 
@@ -160,6 +122,150 @@ namespace DarumaPPAP.PlateauWorldFlow
         {
             internal string Text { get; }
             internal Number(string text) => Text = text;
+        }
+
+        private sealed class Reader
+        {
+            private readonly string _text;
+            private int _position;
+            private string _current;
+
+            internal Reader(string text)
+            {
+                _text = text;
+                Advance();
+            }
+
+            internal Dictionary<string, object> ReadObject()
+            {
+                var fields = ReadValue(0) as Dictionary<string, object>;
+                if (fields == null || _current != null)
+                {
+                    throw new FormatException("Expected one JSON object.");
+                }
+                return fields;
+            }
+
+            private object ReadValue(int depth)
+            {
+                string value = _current ?? throw new FormatException("Missing JSON value.");
+                if (depth > 48)
+                {
+                    throw new FormatException("JSON nesting is too deep.");
+                }
+                Advance();
+                switch (value)
+                {
+                    case "{":
+                        var fields = new Dictionary<string, object>(StringComparer.Ordinal);
+                        if (!Take("}"))
+                        {
+                            do
+                            {
+                                string key = ReadString(_current);
+                                Advance();
+                                Require(":");
+                                if (!fields.TryAdd(key, ReadValue(depth + 1)))
+                                {
+                                    throw new FormatException("Duplicate JSON property.");
+                                }
+                            } while (Take(","));
+                            Require("}");
+                        }
+                        return fields;
+                    case "[":
+                        var items = new List<object>();
+                        if (!Take("]"))
+                        {
+                            do
+                            {
+                                items.Add(ReadValue(depth + 1));
+                            } while (Take(","));
+                            Require("]");
+                        }
+                        return items.ToArray();
+                    case "null": return null;
+                    case "true": return true;
+                    case "false": return false;
+                }
+                // A quoted token has already passed the lexical escape checks.
+                if (value[0] == '"') return ReadString(value);
+                // Preserve integer tokens as integers for the plan schema.
+                if (int.TryParse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out int integer)) return integer;
+                // Other numeric tokens are valid JSON, but cannot satisfy an integer field.
+                if (value[0] == '-' || char.IsDigit(value[0])) return new Number(value);
+                throw new FormatException("Expected a JSON value.");
+            }
+
+            private string ReadString(string token)
+            {
+                if (token == null || token[0] != '"')
+                {
+                    throw new FormatException("Expected a JSON string.");
+                }
+                var output = new StringBuilder(token.Length - 2);
+                for (int i = 1; i < token.Length - 1; i++)
+                {
+                    char character = token[i];
+                    if (character == '\\')
+                    {
+                        character = token[++i];
+                        switch (character)
+                        {
+                            case 'b': character = '\b'; break;
+                            case 'f': character = '\f'; break;
+                            case 'n': character = '\n'; break;
+                            case 'r': character = '\r'; break;
+                            case 't': character = '\t'; break;
+                            case 'u':
+                                character = (char)int.Parse(token.Substring(i + 1, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                                i += 4;
+                                break;
+                        }
+                    }
+                    output.Append(character);
+                }
+                string text = output.ToString();
+                Utf8.GetByteCount(text);
+                return text;
+            }
+
+            private void Advance()
+            {
+                while (_position < _text.Length && " \t\r\n".IndexOf(_text[_position]) >= 0)
+                {
+                    _position++;
+                }
+                // End of input is valid after the final token.
+                if (_position == _text.Length)
+                {
+                    _current = null;
+                    return;
+                }
+                var token = Tokens.Match(_text, _position);
+                if (!token.Success)
+                {
+                    throw new FormatException("Invalid JSON token.");
+                }
+                _current = token.Groups["value"].Value;
+                _position += token.Length;
+            }
+
+            private bool Take(string expected)
+            {
+                // Leave the lookahead available for the caller when it does not match.
+                if (_current != expected) return false;
+                Advance();
+                return true;
+            }
+
+            private void Require(string expected)
+            {
+                if (!Take(expected))
+                {
+                    throw new FormatException("Unexpected JSON delimiter.");
+                }
+            }
         }
     }
 }

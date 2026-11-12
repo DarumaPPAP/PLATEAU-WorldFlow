@@ -8,4 +8,6 @@
 
 GitやGit LFSを利用できない場合は、公式Releaseの `.tgz` を選び、Unity Package Managerの `Install package from tarball` を利用できます。都市モデルのImportは後続Phaseの対象です。利用者向けのGit導入は動作確認後にPackage subfolderと安定Tagを指定して案内します。
 
+最小構成のProjectでは、SDK 4.3.0のコンパイルにUnityの組み込みモジュール `Terrain Physics` と `Unity Web Request Texture` が必要です。該当するコンパイルエラーが出た場合は、Package Managerでモジュールを有効にしてから `Check Dependencies` を再実行してください。
+
 本プロジェクトは独立した非公式OSSです。国土交通省およびProject PLATEAUによる開発、承認、公式サポートの対象外です。SDK、都市データ、第三者資産は同梱していません。[MIT License](LICENSE) · [第三者表示](THIRD_PARTY_NOTICES.md)

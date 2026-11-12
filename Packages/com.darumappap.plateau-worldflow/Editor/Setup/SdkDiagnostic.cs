@@ -42,7 +42,7 @@ namespace DarumaPPAP.PlateauWorldFlow
                 Status = "BLOCKED";
                 diagnostics.Add(Diagnostic("UNITY_VERSION_UNSUPPORTED", "ENVIRONMENT", false));
             }
-            else if (snapshot.HasEmbeddedSdk || sdk?.source == PackageSource.Embedded || (sdk != null && !ResolvedPinnedSdk))
+            else if (sdk == null ? snapshot.HasEmbeddedSdk : !ResolvedPinnedSdk)
             {
                 Status = "INCOMPATIBLE";
                 diagnostics.Add(Diagnostic("EXISTING_SDK_PRESERVED", "PACKAGE_LIST", false));

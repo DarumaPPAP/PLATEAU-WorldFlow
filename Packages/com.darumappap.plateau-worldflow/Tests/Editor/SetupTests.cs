@@ -43,6 +43,24 @@ namespace DarumaPPAP.PlateauWorldFlow
             Assert.Throws<FormatException>(() => Read(fixture));
         }
 
+        [TestCase("\"__type\":\"hidden\",")]
+        [TestCase("\"revision\":1,")]
+        public void UnexpectedOrDuplicateRootFieldIsRejected(string prefix)
+        {
+            var json = File.ReadAllText(Path.Combine(_fixtures, "valid.json"), Encoding.UTF8);
+            Assert.Throws<FormatException>(() => InstallPlan.Parse("{" + prefix + json.Substring(1)));
+        }
+
+        [TestCase("{\"revision\":01}")]
+        [TestCase("{\"revision\":NaN}")]
+        [TestCase("{\"revision\":1,}")]
+        [TestCase("{\"items\":[1,]}")]
+        [TestCase("{\"key\":\"\\ud800\"}")]
+        public void MalformedJsonIsRejected(string json)
+        {
+            Assert.Throws<FormatException>(() => Json.Parse(json));
+        }
+
         [TestCase("outside-allowlist")]
         [TestCase("different-project")]
         [TestCase("expired")]
@@ -54,6 +72,24 @@ namespace DarumaPPAP.PlateauWorldFlow
             var outcome = gate.Run(plan, () => Context(), false, () => true, () => { }, _ => calls++);
             Assert.That(outcome, Is.EqualTo("PLAN_INVALID"));
             Assert.That(calls, Is.Zero);
+        }
+
+        [Test]
+        public void ValidPinnedPlanCannotReachAddInAnotherProject()
+        {
+            var plan = InstallPlan.Create(Context());
+            var other = new InstallContext(new string('f', 64), Manifest, null, ValidTime, true);
+            string outcome = new InstallGate().Run(plan, () => other, false, () => throw new AssertionException("Unexpected dialog"), () => Assert.Fail("Job created"), _ => Assert.Fail("UPM called"));
+            Assert.That(outcome, Is.EqualTo("PLAN_INVALID"));
+        }
+
+        [Test]
+        public void AnAppearingLockFileInvalidatesAnOtherwiseValidPlan()
+        {
+            var plan = InstallPlan.Create(Context());
+            var context = new InstallContext(Project, Manifest, new string('f', 64), ValidTime, true);
+            string outcome = new InstallGate().Run(plan, () => context, false, () => throw new AssertionException("Unexpected dialog"), () => Assert.Fail("Job created"), _ => Assert.Fail("UPM called"));
+            Assert.That(outcome, Is.EqualTo("PLAN_INVALID"));
         }
 
         [Test]
@@ -116,5 +152,6 @@ namespace DarumaPPAP.PlateauWorldFlow
         {
             return new InstallContext(Project, Manifest, null, ValidTime, true);
         }
+
     }
 }
