@@ -87,8 +87,10 @@
 3. 地点承認を飛ばさず、出典・取得日時・ユーザー選択・未確定情報が追跡できる。外部MCPの可用性だけでは`availableLods`を確定しない。
 4. Project Mutationが0件。Phase3 Import未実装/承認未取得を隠さない。
 5. Test結果を`PASS/FAIL/BLOCKED/NOT_RUN`で分け、Model/Prompt/Tool Versionと観測日時を記録。
-6. Phase1のSchema/Adapterを不用意に破壊せず、Codex PR単位でレビュー/承認する。
+6. Phase1のSchema/Adapterを不用意に破壊せず、Phase2全体の完成条件を維持してレビュー・検証する。
 
-## 11. 実装順
+## 11. 実装の進め方と完成単位
 
-[Codex用ハンドオフ](../ai/phase2-codex-handoff.md)で小PRに分ける。Phase2の実行前に読み取り可能な状態遷移と証跡を成立させ、生成AIの作文品質にContractの成否を委ねない。
+**Phase 2の自然言語ワークフロー全体を1つの実装Goalとして扱う。** 既定では単一のfeatureブランチ・実装PRで、場所調査・取得元照合・契約/状態遷移・Skills・Phase1接続・品質比較・Golden/Unity E2Eをすべて完成させる。内部の実装順は担当者が依存関係に応じて選ぶが、その工程をPR-A〜D等の固定分割に読み替えない。
+
+分割が不可避になった場合に限り、変更規模・レビュー・依存関係・リスクの根拠と代案を提示して**ユーザーの明示判断**を得る。Phase2の部分機能だけを完成と宣言しない。読み取り可能な状態遷移・証跡を基盤とし、生成AIの文章の自然さだけでContractやE2Eの成功とみなさない。実装指示は[Codex用ハンドオフ](../ai/phase2-codex-handoff.md)を参照。
