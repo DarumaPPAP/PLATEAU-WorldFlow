@@ -8,7 +8,7 @@
 - **UPM Display Name**: `PLATEAU WorldFlow`
 - **C# namespace**: `DarumaPPAP.PlateauWorldFlow`
 - **ライセンス方針**: 自作コード MIT License／依存コード・都市データは個別ライセンスを遵守
-- **状態**: Phase 0のRepository基盤・Editor Setupは実装・検証済み。Phase 1のRead-only PoCは実装準備段階であり、都市モデルImportは未実装。
+- **状態（2026-11-14 GitHub確認）**: Phase 0/Phase 1は実装・検証・mainへのMerge済み。Phase 2は自然言語による場所選定・計画の実装準備段階。都市モデルImportは未実装。
 
 > 本仕様書のパス、コマンド、JSON、型、Assembly 名は、特記なき限り **PLATEAU-WorldFlow に新規実装する設計名**であり、既存 SDK の API 名を示すものではない。
 
@@ -481,6 +481,7 @@ Requested → LocationsResearched → LocationsApproved
 
 ### Phase 2：Grill-me Skills
 
+- [Phase2の実装仕様](phase2-natural-language-planning.md)、[計画契約案](../contracts/phase2-planning.md)、[Codexハンドオフ](../ai/phase2-codex-handoff.md)を正本に追加。これらは設計準備であり、実行機能は未実装。
 - `plateau-world-planner` を Coordinator とし、調査→範囲→品質→最終承認の状態遷移。
 - Goldens に、曖昧な作品名、実在不明の聖地、重複地点、提供なし、未公開の著作物、出典矛盾等を含める。
 - Fact と Decision を区別し、既定の推奨案を提示するが、根拠がない判断を強行しない。
@@ -536,10 +537,10 @@ Requested → LocationsResearched → LocationsApproved
 ## 10. 未検証事項と取り扱い
 
 - **Repository は作成済み**。GitHub の既定ブランチは `main`。
-- **Unity Editor の機能実装は未着手**。このファイルは設計仕様。
-- 現時点では正式な Unity Editor E2E 未実施。Compatibility の確約には追加検証が必要。
+- Unity EditorのPhase0/Phase1は実装・E2E検証済み。Phase2以降の本処理は未実装。このファイルは製品設計仕様で、最新の実装状態はREADMEとPR証跡を参照。
+- Phase0/Phase1はUnity 6000.3.12f1でEditor E2E済み（PR #2 / #5〜#8）。全Unity Version・OSでの互換性は未検証。
 - Toolkits v2.3.0 の Package manifest に記載された SDK 依存 Version と Release Note の対応説明に差異があるため、UPM 解決と実コンパイルを検証してから機能有効化する。
-- UnityMCP／CLI の実 Version・オプション導入挙動は後続 PoC で確認する。
+- Phase1ではUnityMCP 10.3.0 / 公式CLI 1.0.0-beta.17 / Pipeline 1.0.0で両経路をE2E検証済み。Phase2のLLM/外部PLATEAU MCP連携は未実装・未検証。
 - **自動依存診断と承認付きUPM導入はPhase 0で実装済み。** 実SDK取得中のDomain Reload、オフライン/Git LFS欠落など未実行E2Eは、PR #2の検証記録に従って未確認として扱う。
 - `Client.AddAndRemove` の事前 Dry Run を Unity 6000.3 で利用できるとは仮定しない。依存 Resolver の副作用は変更前後で記録・検査する。
 - 本仕様は商標利用や第三者素材再配布の法的保証ではない。公開前に権利者への確認が必要となる場合がある。
