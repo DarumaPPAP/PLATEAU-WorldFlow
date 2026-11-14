@@ -100,29 +100,31 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                         continue;
                     }
 
+                    // SDK 4.3.0のGmlFile.GridCodeは無効コードのコピー中にStringCodeを呼んで再帰する。
+                    // UDXのファイル名の先頭要素を検証してから、SDKでメッシュ境界を計算する。
+                    int separator = entry.Name.IndexOf('_');
+                    string value = separator > 0 ? entry.Name.Substring(0, separator) : null;
+                    if (!WireValues.Grid(value))
+                    {
+                        complete = false;
+                        continue;
+                    }
+
+                    using var code = PLATEAU.Dataset.GridCode.Create(value);
+                    if (!code.IsValid)
+                    {
+                        complete = false;
+                        continue;
+                    }
+
+                    if (filter != null && !filter.Contains(value))
+                    {
+                        continue;
+                    }
+
                     var file = GmlFile.Create(entry.FullName);
                     try
                     {
-                        using var code = file.GridCode;
-                        // SDK 4.3.0では無効なメッシュのStringCodeを取得すると例外処理が再帰する。
-                        if (!code.IsValid)
-                        {
-                            complete = false;
-                            continue;
-                        }
-
-                        string value = code.StringCode;
-                        if (!WireValues.Grid(value))
-                        {
-                            complete = false;
-                            continue;
-                        }
-
-                        if (filter != null && !filter.Contains(value))
-                        {
-                            continue;
-                        }
-
                         string feature = file.FeatureType;
                         if (!WireValues.Id(feature))
                         {
