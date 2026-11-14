@@ -43,6 +43,30 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
         }
 
         /// <summary>
+        /// 無効なメッシュ名が混在しても、有効な範囲を保持し、観測を完全とは扱わない。
+        /// </summary>
+        [Test]
+        public void InvalidNativeGridCodeLeavesObservationIncomplete()
+        {
+            string root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string building = Directory.CreateDirectory(Path.Combine(root, "udx", "bldg")).FullName;
+            try
+            {
+                File.WriteAllText(Path.Combine(building, "dummy.gml"), "");
+                File.WriteAllText(Path.Combine(building, "53394525_bldg_6697_op.gml"), "");
+                var observation = new LocalSource("fixture", "test-city", root).Inspect(null, CancellationToken.None).Observations.Single();
+                Assert.That(observation.EnumerationComplete, Is.False);
+                Assert.That(observation.TryGetCell("53394525", out var cell), Is.True);
+                Assert.That(cell.FeatureTypes, Is.Null);
+                Assert.That(cell.AvailableLods, Is.Null);
+            }
+            finally
+            {
+                Directory.Delete(root, true);
+            }
+        }
+
+        /// <summary>
         /// 件数・時間の打切り時にメッシュの存在を残し、残りの属性と不在を確定しない。
         /// </summary>
         [TestCase(true)]

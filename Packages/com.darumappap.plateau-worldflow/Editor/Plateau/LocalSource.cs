@@ -104,8 +104,15 @@ namespace DarumaPPAP.PlateauWorldFlow.Plateau
                     try
                     {
                         using var code = file.GridCode;
+                        // SDK 4.3.0では無効なメッシュのStringCodeを取得すると例外処理が再帰する。
+                        if (!code.IsValid)
+                        {
+                            complete = false;
+                            continue;
+                        }
+
                         string value = code.StringCode;
-                        if (!code.IsValid || !WireValues.Grid(value))
+                        if (!WireValues.Grid(value))
                         {
                             complete = false;
                             continue;
