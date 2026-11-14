@@ -23,12 +23,11 @@ DatasetのLODや対象範囲が不明なら数値を確定せず、根拠を確�
 
 ## Phase境界
 
-Phase 0では比較と測定計画まで。LOD変換やSDK経由の品質検査は未実装。
+Phase1の`coverage.inspect`で確認できたLOD/地物を品質候補の根拠とする。Phase2の自然言語品質比較は**未実装**。Presetを使っても実証していないLOD/Texture/容量/Memory/速度を数値として確定しない。実際のImportやLOD変換はPhase3以降。
 
 ## 参照契約
 
-- [Setup契約の範囲](../../../docs/contracts/README.md)
-- [依存SetupのSchema](../../../docs/contracts/dependency-inventory.schema.json)
+- [Phase2仕様](../../../docs/architecture/phase2-natural-language-planning.md)
+- [Phase2計画契約案](../../../docs/contracts/phase2-planning.md)
+- [Phase1 Coverage契約](../../../docs/contracts/phase1-readonly.md)
 - [製品の正本](../../../docs/architecture/system-spec.md)
-
-SetupのSchemaは依存関係専用です。地点、範囲、品質、ImportのJSONは後続Phaseで定義します。
