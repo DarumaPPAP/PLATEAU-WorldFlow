@@ -1,0 +1,20 @@
+{
+  "name": "DarumaPPAP.PlateauWorldFlow.Entry.Editor",
+  "rootNamespace": "DarumaPPAP.PlateauWorldFlow",
+  "references": [
+    "DarumaPPAP.PlateauWorldFlow.Core.Editor",
+    "DarumaPPAP.PlateauWorldFlow.Preview.Editor",
+    "DarumaPPAP.PlateauWorldFlow.Plateau.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "versionDefines": [
+    {
+      "name": "com.synesthesias.plateau-unity-sdk",
+      "expression": "[4.3.0]",
+      "define": "WORLDFLOW_PLATEAU_4_3_0"
+    }
+  ]
+}

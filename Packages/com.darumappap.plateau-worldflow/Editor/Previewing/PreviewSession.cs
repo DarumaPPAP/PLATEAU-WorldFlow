@@ -19,6 +19,17 @@ namespace DarumaPPAP.PlateauWorldFlow.Previewing
         internal PreviewSession(string project) => _project = Path.GetFullPath(project);
 
         /// <summary>
+        /// 元のCoverageを更新または破棄したとき、その観測に基づくPlanを失効させる。
+        /// </summary>
+        internal void Invalidate(string snapshotId)
+        {
+            foreach (var id in _plans.Where(pair => pair.Value.Snapshot.Id == snapshotId).Select(pair => pair.Key).ToArray())
+            {
+                _plans.Remove(id);
+            }
+        }
+
+        /// <summary>
         /// 検証を完了した範囲案と元の観測を保持する。
         /// </summary>
         internal void Remember(AreaPlan plan, CoverageSnapshot snapshot)

@@ -2,7 +2,7 @@
 
 ## 0. 対象と整合
 
-Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](readonly-response.schema.json)はDraft 2020-12を使用し、Phase 0の依存Setup契約とは独立している。Coreは `datasets.list`、`coverage.inspect`、`areas.plan` を処理する。他の操作は後続PR向けにJSON形状のみを定義し、PR-AのCoreは `BLOCKED / CAPABILITY_UNAVAILABLE` を返す。フィールド名はWorldFlow独自の設計名であり、PLATEAU SDK/MCP/CLIの既存型とは区別する。詳しくは[実装仕様](../architecture/phase1-readonly-poc.md)。
+Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](readonly-response.schema.json)はDraft 2020-12を使用し、Phase 0の依存Setup契約とは独立している。MCPとCLIの入口は同じEditorセッションで `dependencies.inspect`、`datasets.list`、`coverage.inspect`、`areas.plan`、`areas.preview`、`areas.preview_png` を処理する。詳しくは[実装仕様](../architecture/phase1-readonly-poc.md)。
 
 全操作に共通:
 - `schemaVersion: 1`、UTF-8、UNKNOWN追加プロパティ禁止。現在時刻はUTC `YYYY-MM-DDTHH:mm:ssZ`。
@@ -110,9 +110,11 @@ Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](rea
 
 ## 4. コマンド命名
 
-外部公開名は実API確認後に決定する。現時点の**提案**:
-- UnityMCP: `worldflow_readonly` という単一Custom Tool + `operation` selector（6個のToolを乱立させない）。利用環境が対応すればToolを分割してもよいが、Test/使用性で根拠を示す。
-- 公式Unity CLI/Pipeline: `unity command worldflow inspect`、`unity command worldflow datasets`、`unity command worldflow coverage`、`unity command worldflow plan`、`unity command worldflow preview`。CLI側命名は実Versionの `[CliCommand]` 登録仕様を検証してから固定。
-- いずれも内部Coreの `operation` とSchemaは共通。CLI固有のstdout表現やMCPツール応答ラッパーはAdapterが担当。
+- UnityMCP 10.3.0の `worldflow_readonly` はDiscoveryで公開する `Request` にv1要求のJSON文字列を受け取り、ツール応答の `data` にv1応答を返す。
+- 公式Unity CLIとPipeline 1.0.0では `unity --non-interactive command --project-path <project> --result-only worldflow readonly --request '<JSON>'` を使う。終了コードは `READY` / `PARTIAL` が0、入力形式エラーが2、不在が13、実行失敗・不明・ブロックが6。
+- Pipeline 1.0.0は非ゼロ終了時に結果JSONを抑制する。失敗や不在を含むv1応答をJSONで受け取る場合は `--status-json` を付け、応答の `status` を評価する。エンベロープが不正な要求はこのオプションでも終了コード2を返す。
+- `projectFingerprint` は対象Projectの `Library/PLATEAUWorldFlow/Setup/inventory.json` から取得する。リクエストごとに新しいUUIDを使う。Coverage、Plan、Previewは同じEditor内で期限付きで保持される。Domain Reload後は照会からやり直す。
+- リモートは `sourceReference: plateau-public` と最新CityGMLカタログの自治体コードを使う。ローカルはUnityの起動環境に `WORLDFLOW_LOCAL_DATASET_ROOT` と `WORLDFLOW_LOCAL_DATASET_ID` を利用者が設定し、`sourceReference: approved-local` を使う。JSONでファイルパスや接続先は受け付けない。
+- PNGの配送は `ARTIFACT_ONLY`。応答の相対パスとManifestを使って対象EditorのProject内で画像を確認する。
 
 関連: [APIエビデンス](../compatibility/phase1-api-evidence.md)。
