@@ -14,7 +14,7 @@ from readonly_contract import response_issues
 from static_common import ROOT, load_json
 
 SETUP_CONTRACTS = ("dependency-inventory", "dependency-install-plan", "dependency-install-result")
-CONTRACTS = (*SETUP_CONTRACTS, "readonly-request", "readonly-response")
+CONTRACTS = (*SETUP_CONTRACTS, "readonly-request", "readonly-response", "preview-manifest")
 DRAFT = "https://json-schema.org/draft/2020-12/schema"
 WireValidator = schema_validators.extend(
     Draft202012Validator,
@@ -131,6 +131,10 @@ def validate_readonly_fixtures(root):
     schemas = validators(root)
     golden = load_json(root / "tests/fixtures/phase1/readonly-golden.json")
     cases = [*golden["cases"], golden["png"]]
+    manifest = load_json(root / "tests/fixtures/phase1/preview-manifest.json")
+    issues = contract_issues(schemas["preview-manifest"], "preview-manifest", manifest)
+    if issues or any(manifest.get(key) != value for key, value in golden["png"]["response"]["result"].items()):
+        raise ValueError("Phase 1 preview manifest does not match the artifact golden")
     for case in cases:
         request = case["request"]
         response = case["response"]

@@ -3,7 +3,8 @@
   "rootNamespace": "DarumaPPAP.PlateauWorldFlow",
   "references": [
     "DarumaPPAP.PlateauWorldFlow.Core.Editor",
-    "DarumaPPAP.PlateauWorldFlow.Setup.Editor"
+    "DarumaPPAP.PlateauWorldFlow.Setup.Editor",
+    "DarumaPPAP.PlateauWorldFlow.Preview.Editor"
   ],
   "includePlatforms": [
     "Editor"
