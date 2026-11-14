@@ -4,7 +4,8 @@
 
 - 製品方針は[システム設計仕様書](docs/architecture/system-spec.md)を正本とする。
 - 各Phaseの範囲は正本の第9章、検証結果の扱いは[検証方針](docs/ai/verification-policy.md)に従う。
-- Phase 1の実装に入る際は[Read-only PoC仕様](docs/architecture/phase1-readonly-poc.md)、[Read-only契約](docs/contracts/phase1-readonly.md)、[API根拠](docs/compatibility/phase1-api-evidence.md)、[Codex引き継ぎ](docs/ai/phase1-codex-handoff.md)を読む。
+- Phase 1の既存実装を変更する際は[Read-only PoC仕様](docs/architecture/phase1-readonly-poc.md)、[Read-only契約](docs/contracts/phase1-readonly.md)、[API根拠](docs/compatibility/phase1-api-evidence.md)を参照する。
+- Phase 2の準備・実装では[自然言語計画仕様](docs/architecture/phase2-natural-language-planning.md)、[計画契約案](docs/contracts/phase2-planning.md)、[調査ソース根拠](docs/compatibility/phase2-research-source-evidence.md)、[Golden](docs/ai/phase2-golden-cases.md)、[Codex引き継ぎ](docs/ai/phase2-codex-handoff.md)に従う。
 - 現行のSetup JSONは[契約と実行前条件](docs/contracts/README.md)を参照する。
 - 作業開始前に対象Phase、実装Baseline、対象Project、未解決の設計判断を確認する。
 
@@ -18,8 +19,8 @@
 ## 現在の実装境界
 
 - Phase 0（Repository基盤、依存Setup/承認Gate、Editor Test）はPR #1・#2で実装済み。既存の動作と証跡を壊さない。
-- Phase 1はRead-only Core、PLATEAU Dataset照会、Scene非変更の範囲PNG、任意MCP/公式CLI Adapter。仕様がMergeされても実装完了と扱わない。
-- 実装順序と最小テストは[Phase 1 Codex handoff](docs/ai/phase1-codex-handoff.md)に従う。最初はCore/ContractだけのPRとし、後続を一度に実装しない。
+- Phase 1はRead-only Core、PLATEAU Dataset照会、Scene非変更の範囲PNG、任意MCP/公式CLI Adapterまで実装・E2E済み（PR #5〜#8）。PNG配送は `ARTIFACT_ONLY`。
+- Phase 2の自然言語Coordinator・場所選定・品質計画は**未実装**。実装は[Phase 2 Codex handoff](docs/ai/phase2-codex-handoff.md)の**Phase全体の完成Goal**に従い、最新mainをBaselineにする。実装PRの分割を勝手に固定せず、必要な場合はユーザーに判断を仰ぐ。
 - CityGML Import、Sceneへのモデル配置、動画、Toolkits、Runtime StreamingはPhase 1で禁止。
 
 ## 固定識別子

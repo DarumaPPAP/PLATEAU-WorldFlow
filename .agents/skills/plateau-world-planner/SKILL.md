@@ -23,12 +23,14 @@ description: "PLATEAUの調査・範囲・品質・実行判断の順序を定�
 
 ## Phase境界
 
-Phase 0ではワークフローと判断の定義まで。Unity接続やImportは未実装。
+Phase 1のRead-only Core/MCP/CLI/PNGは実装済み。Phase 2の自然言語Coordinatorは**未実装**（本Skillは仕様準備）。Phase 3 Importは未実装・実行禁止。ユーザーの地点→Dataset→範囲→品質→計画採用を順序付きで確認し、採用PlanをImport承認として扱わない。
 
 ## 参照契約
 
-- [Setup契約の範囲](../../../docs/contracts/README.md)
-- [依存SetupのSchema](../../../docs/contracts/dependency-install-plan.schema.json)
+- [Phase2仕様](../../../docs/architecture/phase2-natural-language-planning.md)
+- [Phase2計画契約案](../../../docs/contracts/phase2-planning.md)
+- [Phase2 Golden](../../../docs/ai/phase2-golden-cases.md)
+- [Phase1 Read-only契約](../../../docs/contracts/phase1-readonly.md)
 - [製品の正本](../../../docs/architecture/system-spec.md)
 
-SetupのSchemaは依存関係専用です。地点、範囲、品質、ImportのJSONは後続Phaseで定義します。
+Phase2契約は設計案であり、実行時Schema/状態遷移はPhase2全体の実装で実現する。工程のために固定的な複数PRへ分割する前提は置かない。

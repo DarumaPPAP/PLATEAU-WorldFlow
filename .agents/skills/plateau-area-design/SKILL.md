@@ -23,12 +23,11 @@ description: "採用地点に対する対象範囲、分割、重複処理の選
 
 ## Phase境界
 
-Phase 0では計画と承認境界の定義まで。範囲計算や取得処理は未実装。
+Phase1 `areas.plan`/`areas.preview`/`areas.preview_png`は実装済み。Phase2の自然言語に基づく範囲選択のCoordinatorは**未実装**。確認済みExtent/CRSのみを用い、Phase1の`NOT_COMPUTED`面積は`null`のまま表示。地点やCoverage変更時は古いPlan/PNGを失効。CityGML取得・Importは実行禁止。
 
 ## 参照契約
 
-- [Setup契約の範囲](../../../docs/contracts/README.md)
-- [依存SetupのSchema](../../../docs/contracts/dependency-install-plan.schema.json)
+- [Phase2仕様](../../../docs/architecture/phase2-natural-language-planning.md)
+- [Phase2計画契約案](../../../docs/contracts/phase2-planning.md)
+- [Phase1範囲計画とPNG契約](../../../docs/contracts/phase1-readonly.md)
 - [製品の正本](../../../docs/architecture/system-spec.md)
-
-SetupのSchemaは依存関係専用です。地点、範囲、品質、ImportのJSONは後続Phaseで定義します。

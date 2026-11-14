@@ -2,11 +2,16 @@
 
 PLATEAUの3D都市モデルをUnity Editorへ取り込むため、場所の調査、範囲・品質の計画、承認付きImport、結果の検証をAIチャットから支援するOSSです。
 
-**Phase 0 / Setup Bootstrapは実装済み**。Unity EditorでPLATEAU SDKの依存診断と承認付きSetupを実行できます。初期検証基準は Unity `6000.3.10f1` 以上です。**Phase 1 / Read-only PoC** は、Dataset・範囲の読取、範囲案、概略PNGをUnityMCP／公式Unity CLI経由で提供します。都市モデルのImportは後続Phaseで扱います。
+**Phase 0 / Setup Bootstrap** と **Phase 1 / Read-only PoC** は実装・Unity E2E検証済みです。Phase 1はDataset・メッシュ範囲照会、Read-onlyの範囲案、概略PNGをUnityMCP／公式Unity CLIの両経路で提供します。PNGは現在 `ARTIFACT_ONLY`（ファイルをProject内で確認）です。初期検証基準は Unity `6000.3.10f1` 以上で、検証済み環境は `6000.3.12f1`。**Phase 2 / 自然言語による場所選定・計画は設計準備中、CityGML Importは未実装**です。
 
 ## 開発
 
 - [システム設計仕様書](docs/architecture/system-spec.md)
+- [Phase 2 自然言語計画実装仕様（設計準備）](docs/architecture/phase2-natural-language-planning.md)
+- [Phase 2 計画契約案](docs/contracts/phase2-planning.md)
+- [Phase 2 調査ソースと根拠](docs/compatibility/phase2-research-source-evidence.md)
+- [Phase 2 Golden / テスト計画](docs/ai/phase2-golden-cases.md)
+- [Phase 2 Codex引き継ぎ](docs/ai/phase2-codex-handoff.md)
 - [Phase 1 Read-only PoC実装仕様](docs/architecture/phase1-readonly-poc.md)
 - [Phase 1 Read-only Contract](docs/contracts/phase1-readonly.md)
 - [Phase 1 Codex実装引き継ぎ](docs/ai/phase1-codex-handoff.md)
