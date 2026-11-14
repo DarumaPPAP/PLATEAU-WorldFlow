@@ -23,12 +23,12 @@ description: "検証結果と証跡を照合し、未検証項目を記録する
 
 ## Phase境界
 
-Phase 0では検証結果の判定規則まで。PNG・動画撮影やImport結果の実検証は未実装。
+Phase0/1で静的検証・Unity EditMode・Phase1概略PNG生成のE2Eを実施済み。Phase2のLLM/自然言語E2E、Phase3 Import結果検証と動画撮影は**未実装**。設計資料の追加を実行済みと誤認しない。
 
 ## 参照契約
 
-- [Setup契約の範囲](../../../docs/contracts/README.md)
-- [依存SetupのSchema](../../../docs/contracts/dependency-install-result.schema.json)
+- [Phase2 Golden](../../../docs/ai/phase2-golden-cases.md)
+- [Phase2計画契約案](../../../docs/contracts/phase2-planning.md)
+- [検証方針](../../../docs/ai/verification-policy.md)
+- [Phase1 Read-only契約](../../../docs/contracts/phase1-readonly.md)
 - [製品の正本](../../../docs/architecture/system-spec.md)
-
-SetupのSchemaは依存関係専用です。地点、範囲、品質、ImportのJSONは後続Phaseで定義します。
