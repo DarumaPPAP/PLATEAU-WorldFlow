@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -10,6 +11,9 @@ using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace DarumaPPAP.PlateauWorldFlow
 {
+    /// <summary>
+    /// Projectの解決済みPackageと利用可能なSDK機能を照合して依存診断を作る。
+    /// </summary>
     internal sealed class SdkDiagnostic
     {
         internal string Status { get; }
@@ -62,7 +66,7 @@ namespace DarumaPPAP.PlateauWorldFlow
                 Status = "BLOCKED";
                 diagnostics.Add(Diagnostic("SCRIPT_COMPILATION_FAILED", "COMPILE", true));
             }
-            else if (EditorApplication.isCompiling || !HasImporterCapability(sdk))
+            else if (EditorApplication.isCompiling || !HasImporterCapability(sdk) || !CanLoadNativeGridCode(sdk))
             {
                 Status = "UNKNOWN";
                 diagnostics.Add(Diagnostic("IMPORT_CAPABILITY_UNCONFIRMED", "COMPILE", true));
@@ -101,6 +105,29 @@ namespace DarumaPPAP.PlateauWorldFlow
             catch (Exception error) when (error is TypeLoadException || error is FileNotFoundException || error is FileLoadException)
             {
                 // SDKは解決済みでも、依存Assemblyを読み込めない場合はCapabilityを確認できない。
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 固定SDKのメッシュ型を使い、実データを開かずNative DLLの呼び出しを確認する。
+        /// </summary>
+        private static bool CanLoadNativeGridCode(PackageInfo sdk)
+        {
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(item => item.GetName().Name == "libplateau");
+            try
+            {
+                // SDK未導入でもSetupをコンパイルできるよう、確認済みの固定版APIだけを解決する。
+                if (assembly == null || PackageInfo.FindForAssembly(assembly)?.name != sdk.name) return false;
+
+                var type = assembly.GetType("PLATEAU.Dataset.GridCode", false);
+                var create = type?.GetMethod("Create", new[] { typeof(string), typeof(bool) });
+                using var grid = create?.Invoke(null, new object[] { "53394525", true }) as IDisposable;
+                return grid != null && type.GetProperty("IsValid")?.GetValue(grid) is true;
+            }
+            catch (Exception error) when (error is TargetInvocationException || error is TypeLoadException || error is FileNotFoundException || error is FileLoadException || error is DllNotFoundException || error is EntryPointNotFoundException || error is BadImageFormatException)
+            {
+                // Native呼び出しに失敗したSDKには利用可能の証拠を付けない。
                 return false;
             }
         }

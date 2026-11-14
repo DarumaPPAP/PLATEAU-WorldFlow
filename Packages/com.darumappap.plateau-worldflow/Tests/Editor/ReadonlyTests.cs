@@ -13,6 +13,42 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
     internal sealed class ReadonlyTests
     {
         /// <summary>
+        /// メッシュの指定方法と走査完了を独立に扱い、不在の証拠がない場合は未確認とする。
+        /// </summary>
+        [TestCase(true, true, false, "READY")]
+        [TestCase(true, false, false, "PARTIAL")]
+        [TestCase(false, false, false, "PARTIAL")]
+        [TestCase(true, false, true, "UNKNOWN")]
+        [TestCase(true, true, true, "UNAVAILABLE")]
+        public void CoverageRequiresCompletedObservation(bool explicitCodes, bool complete, bool absent, string expected)
+        {
+            const string code = "53394525";
+            var fingerprint = new string('1', 64);
+            var now = DateTimeOffset.UtcNow;
+            var dataset = new Dataset("fixture", null, null, null, null, null, null, null);
+            var cell = new CoverageCell(new GridCode(code), new Extent(35, 139, 36, 140, null), new[] { "bldg" }, new[] { 2 });
+            var observation = new Observation(dataset, absent ? Array.Empty<CoverageCell>() : new[] { cell }, absent && complete ? new[] { new GridCode(code) } : Array.Empty<GridCode>(), complete);
+            var catalog = new Catalog("LOCAL", "local-01", now, now.AddMinutes(5), new[] { observation });
+            var input = Json.Object(("source", "LOCAL"), ("sourceReference", "local-01"), ("datasetId", dataset.Id), ("maxResults", 10));
+            if (explicitCodes)
+            {
+                input.Add("gridCodes", new[] { code });
+            }
+
+            var request = Json.Object(("schemaVersion", 1), ("requestId", Guid.NewGuid().ToString("D")), ("projectFingerprint", fingerprint), ("operation", "coverage.inspect"), ("input", input));
+            var response = Json.Parse(new Coordinator(fingerprint).Execute(Json.Write(request), catalog, now, null, out var snapshot));
+            Assert.That(response["status"], Is.EqualTo(expected));
+            Assert.That(snapshot.AvailableCount, Is.EqualTo(absent ? 0 : 1));
+            Assert.That(snapshot.IsMissing(code), Is.EqualTo(absent && complete));
+            if (!complete && !absent)
+            {
+                Assert.That(snapshot.TryGetCell(code, out var available), Is.True);
+                Assert.That(available.AvailableLods, Is.Null);
+                Assert.That(available.FeatureTypes, Is.Null);
+            }
+        }
+
+        /// <summary>
         /// Fake Catalogの応答を共有Goldenと比較し、取得元が違うCatalogからCoverageを発行しないことも確認する。
         /// </summary>
         [Test]

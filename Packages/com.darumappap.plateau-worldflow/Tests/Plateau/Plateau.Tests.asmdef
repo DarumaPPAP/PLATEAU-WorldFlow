@@ -1,0 +1,25 @@
+{
+  "name": "DarumaPPAP.PlateauWorldFlow.Plateau.Editor.Tests",
+  "rootNamespace": "DarumaPPAP.PlateauWorldFlow",
+  "references": [
+    "DarumaPPAP.PlateauWorldFlow.Plateau.Editor",
+    "DarumaPPAP.PlateauWorldFlow.Core.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "WORLDFLOW_PLATEAU_4_3_0"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.synesthesias.plateau-unity-sdk",
+      "expression": "[4.3.0]",
+      "define": "WORLDFLOW_PLATEAU_4_3_0"
+    }
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

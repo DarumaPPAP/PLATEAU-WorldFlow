@@ -25,7 +25,8 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
         {
             Dataset = dataset ?? throw new ArgumentNullException(nameof(dataset));
             EnumerationComplete = enumerationComplete;
-            _available = available.ToDictionary(cell => cell.Code.Value, StringComparer.Ordinal);
+            // 途中終了の観測では、確認済みのメッシュと境界を残し、網羅できていない属性一覧を伏せる。
+            _available = available.ToDictionary(cell => cell.Code.Value, cell => enumerationComplete ? cell : new CoverageCell(cell.Code, cell.Extent, null, null), StringComparer.Ordinal);
             _missing = new HashSet<string>(missing.Select(code => code.Value), StringComparer.Ordinal);
             if (_missing.Overlaps(_available.Keys))
             {

@@ -13,6 +13,9 @@ using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace DarumaPPAP.PlateauWorldFlow
 {
+    /// <summary>
+    /// Editorの依存診断と承認画面を既存の導入GateおよびUPMジョブへ接続する。
+    /// </summary>
     [InitializeOnLoad]
     internal sealed class Bootstrap
     {
@@ -173,13 +176,22 @@ namespace DarumaPPAP.PlateauWorldFlow
 
             var package = PackageInfo.FindForAssembly(typeof(Bootstrap).Assembly);
             string key = NoticeKeyPrefix + _store.Fingerprint + "." + package?.version + "." + package?.packageId;
+            bool canReview = CanReviewInstall();
+            if (!canReview)
+            {
+                key += ".prerequisites";
+            }
             // Editor再起動後も通知履歴を保持し、ダイアログ表示前に記録して再入を防ぐ。
             if (EditorPrefs.GetBool(key, false)) return;
             EditorPrefs.SetBool(key, true);
 
-            string instructions = _plan == null
-                ? $"導入元: {DependencyCatalog.Source}\nPackage: {DependencyCatalog.Version}\n\nGitとGit LFSの状態を確認し、Tools > PLATEAU WorldFlow > Check Dependencies で再診断してください。"
-                : $"導入元: {_plan.Source}\nPackage: {DependencyCatalog.Version}\n\n追加内容とProjectへの影響は、Tools > PLATEAU WorldFlow > Review and Install SDK で確認できます。";
+            if (canReview)
+            {
+                Install();
+                return;
+            }
+
+            string instructions = $"導入元: {DependencyCatalog.Source}\nPackage: {DependencyCatalog.Version}\n\nGitとGit LFSの状態を確認し、Tools > PLATEAU WorldFlow > Check Dependencies で再診断してください。";
             EditorUtility.DisplayDialog("PLATEAU SDKのセットアップ案内", "このProjectにはPLATEAU SDKが導入されていません。\n\n" + instructions, "閉じる");
         }
 
@@ -198,6 +210,16 @@ namespace DarumaPPAP.PlateauWorldFlow
             bool compileSettled = settled && (_compileObservedWithSdk || compileFailed);
             if (_store.TryReconcile(job, plan, snapshot, observation, listed, compileFailed, settled, compileSettled))
             {
+                bool ready = diagnostic.ResolvedPinnedSdk && diagnostic.Status == "READY" && !compileFailed && Json.Field<string>(job, "stage") != "ADD_FAILED";
+                if (ready)
+                {
+                    Debug.Log($"[WorldFlow] SDK導入 READY。{DependencyCatalog.PackageId} {DependencyCatalog.Version} / {DependencyCatalog.Commit}。Compile、Native DLL、Capabilityを確認しました。");
+                }
+                else
+                {
+                    Debug.LogWarning("[WorldFlow] SDK導入はREADYに達していません。保存済みの導入結果と依存診断を確認してください。");
+                }
+
                 _upmFailure = null;
                 _nextInspection = 0;
                 return;
@@ -214,6 +236,9 @@ namespace DarumaPPAP.PlateauWorldFlow
             }
         }
 
+        /// <summary>
+        /// 初回案内とメニューから、同じPlanの提示、承認、永続化、追加要求を行う。
+        /// </summary>
         private void Install()
         {
             // メニューがコードから呼ばれる場合にも、実行可否をここで確認する。
@@ -222,11 +247,14 @@ namespace DarumaPPAP.PlateauWorldFlow
             try
             {
                 var outcome = _gate.Run(plan, () => CurrentContext(plan), Application.isBatchMode,
-                    () => EditorUtility.DisplayDialog("PLATEAU SDKの追加を承認", $"対象Project\n{_project}\n\n導入元\n{plan.Source}\nTag {DependencyCatalog.Tag} / Package {DependencyCatalog.Version}\n期待するCommit {DependencyCatalog.Commit}\n\nPlan {plan.Id} (Revision {plan.Revision})\nHash {plan.Hash}\n有効期限 {Digests.Timestamp(plan.Expires)}\n\nPackages/manifest.json に直接依存を追加し、packages-lock.json を更新します。推移的依存の変更、再コンパイル、Domain Reloadが発生する場合があります。", "SDKを追加", "保留"),
+                    () => EditorUtility.DisplayDialog("PLATEAU SDKの追加を承認", $"このProjectにはPLATEAU SDKが導入されていません。\n\n対象Project\n{_project}\n\nPackage {DependencyCatalog.PackageId}\nSDK Version {DependencyCatalog.Version}\n導入元 {plan.Source}\n固定Tag {DependencyCatalog.Tag}\n期待するCommit {DependencyCatalog.Commit}\n\nPlan {plan.Id} (Revision {plan.Revision})\nHash {plan.Hash}\n有効期限 {Digests.Timestamp(plan.Expires)}\n\nPackages/manifest.json に直接依存を追加し、packages-lock.json を更新します。推移的依存の変更、再コンパイル、Domain Reloadが発生する場合があります。", "SDKを追加", "後で"),
                     () => _store.Begin(plan, new ProjectSnapshot(_project)),
                     source => Dispatch(plan, source));
                 Debug.Log($"[WorldFlow] SDK追加要求 {outcome}。");
-                QueueInspection();
+                if (outcome != "APPROVAL_DECLINED")
+                {
+                    QueueInspection();
+                }
             }
             catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is FormatException || error is InvalidOperationException)
             {

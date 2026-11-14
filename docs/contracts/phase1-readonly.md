@@ -47,6 +47,7 @@ Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](rea
 - ローカル: `sourceReference` は利用者が許可した既存Dataset Rootの識別子で、絶対パスを結果に出さない。
 - Result: `{source, datasets: [{datasetId,title,featureTypes,version,publisher,licenseId,licenseUrl,sourceUrl}], truncated}`。確認できないフィールドは `null`。
 - Datasetの存在だけを証明し、任意GridCodeでLODが使えるとは言わない。
+- リモートの `sourceUrl` は、公式メタデータに含まれる安全なDataset個別ページを確認できた場合だけ設定する。一般紹介ページやダウンロード先で補完しない。
 - 最大20件。上限超過は `truncated: true`。照会できない場合は空配列で成功を返さない。
 
 ### `coverage.inspect`
@@ -55,6 +56,7 @@ Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](rea
 - Result: `{datasetId, availableGridCodes:[{code,extent,featureTypes,availableLods}], unavailableGridCodes, unverifiedGridCodes, truncated}`。
 - `extent` は `{south,west,north,east,crs}`。数値は有限、緯度は -90..90、経度は -180..180。経度180度を跨ぐ境界はPhase 1で明示的に `BLOCKED` または分割表現し、勝手に補正しない。
 - `availableLods` は存在が実証できた非負整数の配列、未確認は `null`。 `featureTypes` も未検証なら `null`。
+- 明示的なGridCode指定と索引・ディレクトリの走査完了は独立して判定する。走査途中で終了したときは確認済みのメッシュと境界を維持し、網羅性のない地物・LOD一覧は `null` とする。走査できなかったメッシュは未確認として扱う。
 - `unavailableGridCodes` は明示照会して存在しないと判断したコードのみ。接続失敗/権限不足等は `unverifiedGridCodes` に区別。
 - 正規化前の要求は最大500コード。同一メッシュを重複返却しない。PR-Aは地域メッシュの形式のみ検査する。実SDKの妥当性検査とExtent取得、国土基本図の図郭コードの対応要否はPR-Bで確認する。全件が未確認である場合、`availableGridCodes` と `unavailableGridCodes` は `null`。一部を確認できた場合、配列はその応答で分類できたものを表し、`unverifiedGridCodes` と打切り状態を併せて読む。
 
