@@ -76,6 +76,7 @@ Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](rea
 - Result: `{previewId,extent,coordinateReference,gridCells:[{code,extent,availability,selected}],legend,accuracyNote}`。
 - `availability` は `AVAILABLE|UNAVAILABLE|UNVERIFIED`。地図タイルや建物形状を生成しない。描画座標へ変換したときの向き・Aspectを保持。
 - 描画のみでSceneを変更しないことを保証するデータ契約。
+- PNGの「SCHEMATIC / NOT A MAP」は、データの利用範囲を示す概略図であることを表す。地形・道路・建物の描画は含まない。青緑の塗りは利用可能なメッシュ、黄色の枠は選択済みのメッシュ。利用不可・位置未確認のメッシュは位置を推定せず「COUNTS ONLY / NOT DRAWN」に件数を表示する。`CRS_UNVERIFIED` または `CRS: UNVERIFIED` の場合、表示座標の測地系は未確認。
 
 ### `areas.preview_png`
 
@@ -84,7 +85,7 @@ Phase 1の[Request Schema](readonly-request.schema.json)と[Response Schema](rea
 - `relativePath` は既存Project内 `Library/PLATEAUWorldFlow/Preview/<artifactId>.png` に限定。任意出力先は受け付けない。
 - `deliveryStatus` は `INLINE_IMAGE|ARTIFACT_ONLY|UNAVAILABLE`。 `INLINE_IMAGE` はクライアントが画像として表示できることを**実E2Eで確認したときだけ**返す。JSONでbase64を返せたことだけでは視認性の証明としない。
 - PNG bytesは `result` のJSON本文へ常時埋め込まず、Adapterがサポートする場合に限り別のメディア応答として返す。
-- 対応Manifestは同じArtifact IDのJSONで保持し、認証情報やユーザー固有Pathを含めない。
+- 対応Manifestは同じArtifact IDのJSONで保持し、認証情報やユーザー固有Pathを含めない。Manifestは[PNG Evidence Manifest Schema](preview-manifest.schema.json)に従い、応答のArtifact項目に取得元区分、参照ID、表示範囲を加える。
 
 ## 2. エラーコード・安全性
 

@@ -31,8 +31,10 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
         /// <param name="snapshot">範囲計画の入力となる既存のCoverage。</param>
         /// <param name="inspected">今回発行したCoverage。発行しなかった場合はnull。</param>
         /// <param name="cancellationToken">処理開始前と応答生成前に確認するキャンセル通知。</param>
+        /// <param name="rememberPlan">応答を発行する範囲案と元の観測を保持する呼び出し元。</param>
+        /// <param name="executeExtension">Project照合後にプレビュー等の追加操作を処理する呼び出し元。</param>
         /// <returns>操作結果、判定状態、診断、証跡を格納した応答JSON。</returns>
-        internal string Execute(string json, Catalog catalog, DateTimeOffset now, CoverageSnapshot snapshot, out CoverageSnapshot inspected, CancellationToken cancellationToken = default)
+        internal string Execute(string json, Catalog catalog, DateTimeOffset now, CoverageSnapshot snapshot, out CoverageSnapshot inspected, CancellationToken cancellationToken = default, Action<AreaPlan, CoverageSnapshot> rememberPlan = null, Func<string, string, Dictionary<string, object>, DateTimeOffset, (string Status, object Result, object Evidence, string Code, string Location)> executeExtension = null)
         {
             inspected = null;
             cancellationToken.ThrowIfCancellationRequested();
@@ -51,12 +53,14 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
                 throw new FormatException("Invalid request envelope.");
             }
 
-            string Respond(string status, object result, Catalog evidence = null, params object[] diagnostics)
+            string RespondWithEvidence(string status, object result, object evidence, params object[] diagnostics)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var record = evidence == null ? Array.Empty<object>() : new[] { evidence.Evidence() };
+                var record = evidence == null ? Array.Empty<object>() : new[] { evidence };
                 return Json.Write(Json.Object(("schemaVersion", 1), ("requestId", id), ("projectFingerprint", fingerprint), ("operation", operation), ("status", status), ("checkedAt", Digests.Timestamp(now)), ("result", result), ("evidence", record), ("diagnostics", diagnostics), ("warnings", Array.Empty<string>())));
             }
+
+            string Respond(string status, object result, Catalog evidence = null, params object[] diagnostics) => RespondWithEvidence(status, result, evidence?.Evidence(), diagnostics);
 
             string Error(string status, string code, string location, Catalog evidence = null) => Respond(status, null, evidence, Diagnostic(code, location));
 
@@ -216,10 +220,19 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
                         status = "UNAVAILABLE";
                     }
 
-                    return Respond(status, plan.ToJson(), snapshot.Catalog, diagnostics.ToArray());
+                    string response = Respond(status, plan.ToJson(), snapshot.Catalog, diagnostics.ToArray());
+                    rememberPlan?.Invoke(plan, snapshot);
+                    return response;
                 }
                 default:
-                    return Error("BLOCKED", "CAPABILITY_UNAVAILABLE", "operation");
+                {
+                    // オプションの実行経路がなければ、能力不足として安全に応答する。
+                    if (executeExtension == null) return Error("BLOCKED", "CAPABILITY_UNAVAILABLE", "operation");
+
+                    var extension = executeExtension(id, operation, input, now);
+                    var diagnostics = extension.Code == null ? Array.Empty<object>() : new[] { Diagnostic(extension.Code, extension.Location) };
+                    return RespondWithEvidence(extension.Status, extension.Result, extension.Evidence, diagnostics);
+                }
             }
         }
 

@@ -61,6 +61,7 @@ namespace DarumaPPAP.PlateauWorldFlow.ReadOnly
         }
 
         internal int AvailableCount => _available.Count;
+        internal IEnumerable<string> AvailableCodes => _available.Keys;
         internal int MissingCount => _missing.Count;
         /// <summary>
         /// 指定されたメッシュの利用可能な観測を取得する。
