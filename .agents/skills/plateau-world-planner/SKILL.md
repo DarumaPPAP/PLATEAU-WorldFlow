@@ -33,4 +33,4 @@ Phase 1のRead-only Core/MCP/CLI/PNGは実装済み。Phase 2の自然言語Coor
 - [Phase1 Read-only契約](../../../docs/contracts/phase1-readonly.md)
 - [製品の正本](../../../docs/architecture/system-spec.md)
 
-Phase2契約は設計案であり、実行時Schema/状態遷移は後続PRで実装する。
+Phase2契約は設計案であり、実行時Schema/状態遷移はPhase2全体の実装で実現する。工程のために固定的な複数PRへ分割する前提は置かない。
