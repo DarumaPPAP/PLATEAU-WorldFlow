@@ -1,6 +1,6 @@
 # Phase 2 — 自然言語計画のデータ契約（設計案 v1）
 
-- **設計のみ**。JSON Schema/Codec/Runtime APIはまだ実装されていない。Phase2 PR-AでSchema Draft 2020-12とGoldenを追加し、既存Phase1 `schemaVersion=1`に破壊的変更をしない。
+- **設計のみ**。JSON Schema/Codec/Runtime APIはまだ実装されていない。Phase2全体の実装でSchema Draft 2020-12とGoldenを追加し、既存Phase1 `schemaVersion=1`に破壊的変更をしない。
 - 調査・会話の記録用であり、Phase0 Install Plan、Phase1 Read-only Area Plan、Phase3 Import Planとは別物。
 - 既存の[Phase1契約](phase1-readonly.md)と[Phase2仕様](../architecture/phase2-natural-language-planning.md)を参照。
 
@@ -97,7 +97,7 @@ IDに外部URLや任意ファイルパスを埋め込まない。Phase1 `project
 3. `QualityChoice`の`verifiedLods`は`coverage.inspect`実測の集合の部分集合でなければならない。
 4. 地点変更、取得元変更、観測更新、Editor Domain Reload、Plan Revision変更では下流Plan/Previewの参照は失効。UIに古いPNGを表示する場合は`STALE`警告。
 5. 証跡はアサーションと紐付け、出典があるというだけで場所の正しさを断定しない。
-6. `planDigest`の算出対象・フィールド順序・Unicode正規化はPR-Aで固定しPython/C#両方でGolden照合。SHA256を使っただけでは権限/承認にならない。
+6. `planDigest`の算出対象・フィールド順序・Unicode正規化はPhase2の実装内で固定しPython/C#両方でGolden照合。SHA256を使っただけでは権限/承認にならない。
 7. Phase2から`dependencies.install`、CityGML Import、Scene変更APIを実行しない。
 8. `sourceRef`は表示/引用用であり、任意URLをSDKやUPMへ渡す経路を作らない。
 
