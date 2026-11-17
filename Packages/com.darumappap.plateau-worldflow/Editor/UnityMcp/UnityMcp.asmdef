@@ -1,0 +1,22 @@
+{
+  "name": "DarumaPPAP.PlateauWorldFlow.UnityMcp.Editor",
+  "rootNamespace": "DarumaPPAP.PlateauWorldFlow",
+  "references": [
+    "DarumaPPAP.PlateauWorldFlow.Entry.Editor",
+    "MCPForUnity.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "WORLDFLOW_MCP_10_3_0"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.coplaydev.unity-mcp",
+      "expression": "[10.3.0]",
+      "define": "WORLDFLOW_MCP_10_3_0"
+    }
+  ]
+}

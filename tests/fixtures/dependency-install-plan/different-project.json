@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "projectFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+  "planId": "plan-fixture-01",
+  "revision": 1,
+  "createdAt": "2026-11-11T00:00:00Z",
+  "expiresAt": "2026-11-11T00:10:00Z",
+  "baselineManifestHash": "2222222222222222222222222222222222222222222222222222222222222222",
+  "baselineLockHash": null,
+  "changes": [
+    {
+      "packageId": "com.synesthesias.plateau-unity-sdk",
+      "sourceUri": "https://github.com/Project-PLATEAU/PLATEAU-SDK-for-Unity.git#v4.3.0",
+      "versionOrCommit": "v4.3.0",
+      "expectedVersion": "4.3.0",
+      "reason": "SDK 未導入 / \"PLATEAU\" を追加する \\ 🏙",
+      "licenseUrl": "https://github.com/Project-PLATEAU/PLATEAU-SDK-for-Unity/blob/v4.3.0/LICENSE.md"
+    }
+  ],
+  "warnings": [
+    "再コンパイルと Domain Reload",
+    "推移的依存の変更可能性"
+  ],
+  "planHash": "8eb60131942379f113d31da097c74735b5e232189e7a681cb09ee02164b89518"
+}

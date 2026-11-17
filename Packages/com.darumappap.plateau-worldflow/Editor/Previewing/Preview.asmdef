@@ -1,0 +1,11 @@
+{
+  "name": "DarumaPPAP.PlateauWorldFlow.Preview.Editor",
+  "rootNamespace": "DarumaPPAP.PlateauWorldFlow.Previewing",
+  "references": [
+    "DarumaPPAP.PlateauWorldFlow.Core.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false
+}

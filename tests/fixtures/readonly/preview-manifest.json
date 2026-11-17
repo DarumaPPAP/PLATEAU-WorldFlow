@@ -1,0 +1,18 @@
+{
+  "artifactId": "00000000-0000-4000-8000-000000000007",
+  "relativePath": "Library/PLATEAUWorldFlow/Preview/00000000-0000-4000-8000-000000000007.png",
+  "mimeType": "image/png",
+  "width": 512,
+  "height": 512,
+  "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "byteLength": 100,
+  "createdAt": "2026-11-12T00:00:00Z",
+  "sourceDatasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "planId": "00000000-0000-4000-8000-000000000003",
+  "planRevision": 1,
+  "crs": null,
+  "deliveryStatus": "ARTIFACT_ONLY",
+  "source": "LOCAL_DATASET",
+  "sourceReference": "fixture",
+  "extent": null
+}

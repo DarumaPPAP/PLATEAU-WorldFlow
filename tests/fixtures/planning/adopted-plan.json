@@ -1,0 +1,410 @@
+{
+  "schemaVersion": 1,
+  "planningSessionId": "00000000-0000-4000-8000-000000000064",
+  "planRevision": 18,
+  "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+  "stage": "PLAN_READY",
+  "status": "READY",
+  "researchStatus": "COMPLETE",
+  "candidatePlaces": [
+    {
+      "id": "place-a",
+      "name": "試験町Ａ",
+      "locality": "Example Town A",
+      "administrativeCode": "12345",
+      "coordinates": {
+        "latitude": 35.5,
+        "longitude": 139.5,
+        "crs": "EPSG:4326",
+        "precision": "合成測量値",
+        "accuracyDegrees": 0.0001,
+        "sourceEvidenceIds": [
+          "coordinate-a"
+        ]
+      },
+      "physicalPlaceStatus": "VERIFIED",
+      "workAssociationStatus": "UNVERIFIED",
+      "evidenceIds": [
+        "exist-a",
+        "code-a",
+        "coordinate-a"
+      ],
+      "reason": "自治体資料に記載がある",
+      "datasetAvailability": "VERIFIED_AVAILABLE"
+    },
+    {
+      "id": "place-b",
+      "name": "試験町Ａ",
+      "locality": "Example Town B",
+      "administrativeCode": null,
+      "coordinates": null,
+      "physicalPlaceStatus": "VERIFIED",
+      "workAssociationStatus": "UNVERIFIED",
+      "evidenceIds": [
+        "exist-b"
+      ],
+      "reason": "自治体資料に同名の地点がある",
+      "datasetAvailability": "UNKNOWN"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "exist-a",
+      "subjectId": "place-a",
+      "claimType": "PLACE_EXISTENCE",
+      "sourceKind": "MUNICIPAL",
+      "providerId": "fixture",
+      "sourceRef": "https://example.test/a",
+      "observedAt": "2026-11-10T00:00:00Z",
+      "factStatus": "VERIFIED"
+    },
+    {
+      "id": "code-a",
+      "subjectId": "place-a",
+      "claimType": "ADMINISTRATIVE_CODE",
+      "sourceKind": "OFFICIAL",
+      "providerId": "fixture",
+      "sourceRef": "https://example.test/code",
+      "observedAt": "2026-11-10T00:00:00Z",
+      "factStatus": "VERIFIED"
+    },
+    {
+      "id": "exist-b",
+      "subjectId": "place-b",
+      "claimType": "PLACE_EXISTENCE",
+      "sourceKind": "MUNICIPAL",
+      "providerId": "fixture",
+      "sourceRef": "https://example.test/b",
+      "observedAt": "2026-11-10T00:00:00Z",
+      "factStatus": "VERIFIED"
+    },
+    {
+      "id": "coordinate-a",
+      "subjectId": "place-a",
+      "claimType": "COORDINATES",
+      "sourceKind": "MUNICIPAL",
+      "providerId": "fixture",
+      "sourceRef": "https://example.test/a",
+      "observedAt": "2026-11-10T00:00:00Z",
+      "factStatus": "VERIFIED"
+    }
+  ],
+  "decisions": [
+    {
+      "kind": "LOCATION",
+      "selectedId": "place-a",
+      "revision": 4,
+      "decisionSource": "USER_EXPLICIT",
+      "decidedAt": "2026-11-12T00:00:00Z",
+      "targetKind": "POINT"
+    },
+    {
+      "kind": "DATASET",
+      "selectedId": "12345",
+      "revision": 7,
+      "decisionSource": "USER_EXPLICIT",
+      "decidedAt": "2026-11-12T00:00:00Z"
+    },
+    {
+      "kind": "AREA",
+      "selectedId": "00000000-0000-4000-8000-000000000067",
+      "revision": 13,
+      "decisionSource": "USER_EXPLICIT",
+      "decidedAt": "2026-11-12T00:00:00Z"
+    },
+    {
+      "kind": "OVERLAP_POLICY",
+      "selectedId": "SINGLE",
+      "revision": 14,
+      "decisionSource": "USER_EXPLICIT",
+      "decidedAt": "2026-11-12T00:00:00Z"
+    },
+    {
+      "kind": "QUALITY",
+      "selectedId": "light",
+      "revision": 16,
+      "decisionSource": "USER_EXPLICIT",
+      "decidedAt": "2026-11-12T00:00:00Z"
+    },
+    {
+      "kind": "PLAN",
+      "selectedId": "00000000-0000-4000-8000-000000000067",
+      "revision": 17,
+      "decisionSource": "USER_EXPLICIT",
+      "decidedAt": "2026-11-12T00:00:00Z"
+    }
+  ],
+  "selectedLocationId": "place-a",
+  "catalog": {
+    "source": "REMOTE",
+    "sourceReference": "plateau-public",
+    "requestId": "00000000-0000-4000-8000-000000000065",
+    "checkedAt": "2026-11-12T00:00:00Z",
+    "status": "READY",
+    "result": {
+      "source": "REMOTE",
+      "datasets": [
+        {
+          "datasetId": "12345",
+          "title": "検証用都市（第１版）",
+          "featureTypes": [
+            "bldg"
+          ],
+          "version": null,
+          "publisher": null,
+          "licenseId": null,
+          "licenseUrl": null,
+          "sourceUrl": null
+        }
+      ],
+      "truncated": false
+    }
+  },
+  "coverageReference": {
+    "source": "REMOTE",
+    "sourceReference": "plateau-public",
+    "datasetId": "12345",
+    "requestedGrids": [
+      "533945"
+    ],
+    "coverageSnapshotId": "00000000-0000-4000-8000-000000000066",
+    "locationId": "place-a",
+    "status": "READY",
+    "issuedAt": "2026-11-12T00:00:00Z",
+    "checkedAt": "2026-11-12T00:00:00Z",
+    "expiresAt": "2026-11-12T00:05:00Z",
+    "diagnostics": [],
+    "result": {
+      "datasetId": "12345",
+      "availableGridCodes": [
+        {
+          "code": "533945",
+          "extent": {
+            "south": 35,
+            "west": 139,
+            "north": 36,
+            "east": 140,
+            "crs": "EPSG:4326"
+          },
+          "featureTypes": [
+            "bldg"
+          ],
+          "availableLods": [
+            0
+          ]
+        }
+      ],
+      "unavailableGridCodes": [],
+      "unverifiedGridCodes": [],
+      "truncated": false
+    }
+  },
+  "areaOptions": [
+    {
+      "id": "00000000-0000-4000-8000-000000000067",
+      "plan": {
+        "planId": "00000000-0000-4000-8000-000000000067",
+        "planRevision": 9,
+        "coverageSnapshotId": "00000000-0000-4000-8000-000000000066",
+        "selectedGridCodes": [
+          "533945"
+        ],
+        "coveredGridCodes": [
+          "533945"
+        ],
+        "missingGridCodes": [],
+        "unverifiedGridCodes": [],
+        "extent": {
+          "south": 35,
+          "west": 139,
+          "north": 36,
+          "east": 140,
+          "crs": "EPSG:4326"
+        },
+        "overlap": null,
+        "estimatedAreaSquareMeters": null,
+        "areaMethod": "NOT_COMPUTED"
+      },
+      "coordinateReference": "EPSG:4326",
+      "status": "READY",
+      "preview": {
+        "previewId": "00000000-0000-4000-8000-000000000068",
+        "extent": {
+          "south": 35,
+          "west": 139,
+          "north": 36,
+          "east": 140,
+          "crs": "EPSG:4326"
+        },
+        "coordinateReference": "EPSG:4326",
+        "gridCells": [
+          {
+            "code": "533945",
+            "availability": "AVAILABLE",
+            "selected": true,
+            "extent": {
+              "south": 35,
+              "west": 139,
+              "north": 36,
+              "east": 140,
+              "crs": "EPSG:4326"
+            }
+          }
+        ],
+        "legend": [
+          "AVAILABLE",
+          "UNAVAILABLE",
+          "UNVERIFIED"
+        ],
+        "accuracyNote": "SCHEMATIC"
+      },
+      "previewStatus": "READY",
+      "png": null,
+      "spatialFit": "VERIFIED"
+    }
+  ],
+  "areaChoice": {
+    "id": "00000000-0000-4000-8000-000000000067",
+    "plan": {
+      "planId": "00000000-0000-4000-8000-000000000067",
+      "planRevision": 9,
+      "coverageSnapshotId": "00000000-0000-4000-8000-000000000066",
+      "selectedGridCodes": [
+        "533945"
+      ],
+      "coveredGridCodes": [
+        "533945"
+      ],
+      "missingGridCodes": [],
+      "unverifiedGridCodes": [],
+      "extent": {
+        "south": 35,
+        "west": 139,
+        "north": 36,
+        "east": 140,
+        "crs": "EPSG:4326"
+      },
+      "overlap": null,
+      "estimatedAreaSquareMeters": null,
+      "areaMethod": "NOT_COMPUTED"
+    },
+    "coordinateReference": "EPSG:4326",
+    "status": "READY",
+    "preview": {
+      "previewId": "00000000-0000-4000-8000-000000000068",
+      "extent": {
+        "south": 35,
+        "west": 139,
+        "north": 36,
+        "east": 140,
+        "crs": "EPSG:4326"
+      },
+      "coordinateReference": "EPSG:4326",
+      "gridCells": [
+        {
+          "code": "533945",
+          "availability": "AVAILABLE",
+          "selected": true,
+          "extent": {
+            "south": 35,
+            "west": 139,
+            "north": 36,
+            "east": 140,
+            "crs": "EPSG:4326"
+          }
+        }
+      ],
+      "legend": [
+        "AVAILABLE",
+        "UNAVAILABLE",
+        "UNVERIFIED"
+      ],
+      "accuracyNote": "SCHEMATIC"
+    },
+    "previewStatus": "READY",
+    "png": null,
+    "spatialFit": "VERIFIED",
+    "overlapPolicy": "SINGLE"
+  },
+  "qualityOptions": [
+    {
+      "id": "light",
+      "preset": "CUSTOM",
+      "requestedFeatureTypes": [],
+      "requestedLods": [
+        0
+      ],
+      "reason": "軽量な候補",
+      "verifiedLods": [
+        0
+      ],
+      "verifiedFeatureTypes": [
+        "bldg"
+      ],
+      "unverifiedRequirements": [],
+      "estimates": {
+        "diskBytes": null,
+        "memoryBytes": null,
+        "durationSeconds": null
+      }
+    },
+    {
+      "id": "preset-light",
+      "preset": "LIGHT",
+      "requestedFeatureTypes": [],
+      "requestedLods": [
+        0
+      ],
+      "reason": "選択メッシュで確認できた LOD 0 を指定",
+      "verifiedLods": [
+        0
+      ],
+      "verifiedFeatureTypes": [
+        "bldg"
+      ],
+      "unverifiedRequirements": [],
+      "estimates": {
+        "diskBytes": null,
+        "memoryBytes": null,
+        "durationSeconds": null
+      }
+    }
+  ],
+  "qualityChoice": {
+    "id": "light",
+    "preset": "CUSTOM",
+    "requestedFeatureTypes": [],
+    "requestedLods": [
+      0
+    ],
+    "reason": "軽量な候補",
+    "verifiedLods": [
+      0
+    ],
+    "verifiedFeatureTypes": [
+      "bldg"
+    ],
+    "unverifiedRequirements": [],
+    "estimates": {
+      "diskBytes": null,
+      "memoryBytes": null,
+      "durationSeconds": null
+    }
+  },
+  "pending": null,
+  "warnings": [],
+  "missingFacts": [
+    "AREA_SQUARE_METERS"
+  ],
+  "nextQuestion": null,
+  "planDigest": "1b6e5974ea4edbf88c4b2f9f874d8878b090d6718c3dba3138d0f98f233c3c2e",
+  "adoptionCheck": {
+    "checkedAt": "2026-11-12T00:00:00Z",
+    "requestId": "00000000-0000-4000-8000-000000000069",
+    "phase1AreaPlanId": "00000000-0000-4000-8000-000000000067",
+    "phase1PlanRevision": 9,
+    "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+    "coverageSnapshotId": "00000000-0000-4000-8000-000000000066",
+    "status": "READY"
+  }
+}

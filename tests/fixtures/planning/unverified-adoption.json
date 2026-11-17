@@ -1,0 +1,7 @@
+{
+  "base": "adopted-plan.json",
+  "candidateId": "place-a",
+  "coordinates": null,
+  "datasetAvailability": "CANDIDATE_ONLY",
+  "expect": "SPATIAL_FIT_MISMATCH"
+}

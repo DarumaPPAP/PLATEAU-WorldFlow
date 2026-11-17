@@ -1,0 +1,25 @@
+name: Release check
+
+on:
+  pull_request:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  release-version:
+    name: Release version validation
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4
+        with:
+          persist-credentials: false
+      - name: Test matching and mismatching release tags
+        if: github.event_name == 'pull_request'
+        run: python3 -m unittest discover -s tests -p test_package.py -k release_tag -v
+      - name: Validate the pushed tag
+        if: github.event_name == 'push'
+        run: python3 tools/validate_package.py --tag="$GITHUB_REF_NAME"

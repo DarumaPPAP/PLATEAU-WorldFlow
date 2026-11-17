@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-evidence.schema.json",
+  "title": "WorldFlow Import Evidence",
+  "description": "Common job identity and capture manifest fields. File integrity and Scene verification require runtime checks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "importPlanId",
+    "projectFingerprint",
+    "planHash",
+    "operationKey",
+    "checkedAt",
+    "captureStatus",
+    "captures"
+  ],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "jobId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/jobId"},
+    "importPlanId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/importPlanId"},
+    "projectFingerprint": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/projectFingerprint"},
+    "planHash": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/planHash"},
+    "operationKey": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/operationKey"},
+    "checkedAt": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/timestamp"},
+    "phase2": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-plan.schema.json#/properties/phase2"},
+    "sdkVersion": {"const": "4.3.0"},
+    "datasetSource": {"enum": ["LOCAL", "REMOTE"]},
+    "datasetId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-plan.schema.json#/properties/source/properties/worldFlowDatasetId"},
+    "datasetVersion": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-plan.schema.json#/properties/source/properties/datasetVersion"},
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceUrl", "licenseId", "licenseUrl"],
+      "properties": {
+        "sourceUrl": {"anyOf": [{"type": "null"}, {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/officialUrl"}]},
+        "licenseId": {"anyOf": [{"type": "null"}, {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/safeText"}]},
+        "licenseUrl": {"anyOf": [{"type": "null"}, {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/officialUrl"}]}
+      }
+    },
+    "selection": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-plan.schema.json#/properties/selection"},
+    "sceneVerification": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-result.schema.json#/properties/sceneVerification"},
+    "gml": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-result.schema.json#/properties/gml"},
+    "gmlResultSha256": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+    "resolvedGmlSha256": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+    "scene": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/scene"}]},
+    "assets": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/asset"}},
+    "measurements": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gameObjects", "renderers", "meshFilters"],
+          "properties": {
+            "gameObjects": {"type": "integer", "minimum": 0},
+            "renderers": {"type": "integer", "minimum": 0},
+            "meshFilters": {"type": "integer", "minimum": 0}
+          }
+        }
+      ]
+    },
+    "captureStatus": {"enum": ["READY", "PARTIAL", "BLOCKED", "NOT_RUN"]},
+    "captures": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/capture"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"captureStatus": {"const": "READY"}}},
+      "then": {"properties": {"captures": {"minItems": 1}}}
+    },
+    {
+      "if": {"properties": {"captureStatus": {"const": "NOT_RUN"}}},
+      "then": {"properties": {"captures": {"maxItems": 0}}}
+    }
+  ],
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relativePath", "byteLength", "sha256"],
+      "properties": {
+        "relativePath": {
+          "type": "string",
+          "pattern": "^(?:Assets/PLATEAUWorldFlow/Imports/[0-9a-f-]{36}/(?:City\\.unity\\.meta|Generated-[0-9]+\\.asset(?:\\.meta)?))(?![\\s\\S])"
+        },
+        "byteLength": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"}
+      }
+    },
+    "scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relativePath", "byteLength", "sha256", "guid"],
+      "properties": {
+        "relativePath": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-plan.schema.json#/properties/output/properties/scenePath"},
+        "byteLength": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+        "guid": {"type": "string", "pattern": "^(?:[0-9a-f]{32})(?![\\s\\S])"}
+      }
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["viewId", "relativePath", "mimeType", "sha256", "byteLength", "createdAt"],
+      "properties": {
+        "viewId": {"type": "string", "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9_-]{0,63})(?![\\s\\S])"},
+        "relativePath": {
+          "type": "string",
+          "pattern": "^(?:Library/PLATEAUWorldFlow/Import/jobs/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/captures/[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\.png)(?![\\s\\S])"
+        },
+        "mimeType": {"const": "image/png"},
+        "sceneGuid": {"type": "string", "pattern": "^(?:[0-9a-f]{32})(?![\\s\\S])"},
+        "sha256": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+        "byteLength": {"type": "integer", "minimum": 1},
+        "createdAt": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/timestamp"}
+      }
+    }
+  }
+}

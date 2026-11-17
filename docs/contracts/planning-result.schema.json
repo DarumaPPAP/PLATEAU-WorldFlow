@@ -1,0 +1,490 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/planning-result.schema.json",
+  "title": "WorldFlow Read-only Planning Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "planningSessionId",
+    "planRevision",
+    "projectFingerprint",
+    "stage",
+    "status",
+    "researchStatus",
+    "candidatePlaces",
+    "evidence",
+    "decisions",
+    "selectedLocationId",
+    "catalog",
+    "coverageReference",
+    "areaOptions",
+    "areaChoice",
+    "qualityOptions",
+    "qualityChoice",
+    "pending",
+    "warnings",
+    "missingFacts",
+    "nextQuestion",
+    "planDigest",
+    "adoptionCheck"
+  ],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "planningSessionId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+    "planRevision": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/revision"},
+    "projectFingerprint": {
+      "anyOf": [
+        {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+        {"type": "null"}
+      ]
+    },
+    "stage": {
+      "enum": [
+        "REQUESTED",
+        "RESEARCHING",
+        "LOCATION_PROPOSED",
+        "LOCATION_SELECTED",
+        "COVERAGE_CHECKING",
+        "AREA_PROPOSED",
+        "AREA_SELECTED",
+        "QUALITY_PROPOSED",
+        "PLAN_READY"
+      ]
+    },
+    "status": {
+      "description": "READY requires current adoption evidence, confirmed selected grids and requested quality, and spatial verification for POINT targets.",
+      "enum": ["READY", "PARTIAL", "NEEDS_CLARIFICATION", "BLOCKED", "UNKNOWN", "CANCELLED"]
+    },
+    "researchStatus": {
+      "anyOf": [
+        {
+          "enum": ["COMPLETE", "PARTIAL", "UNKNOWN"]
+        },
+        {"type": "null"}
+      ]
+    },
+    "candidatePlaces": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/candidate"},
+      "minItems": 0,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidence"},
+      "minItems": 0,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision"},
+      "minItems": 0,
+      "maxItems": 6,
+      "uniqueItems": true
+    },
+    "selectedLocationId": {
+      "anyOf": [
+        {"$ref": "#/$defs/id"},
+        {"type": "null"}
+      ]
+    },
+    "catalog": {
+      "anyOf": [
+        {"$ref": "#/$defs/catalog"},
+        {"type": "null"}
+      ]
+    },
+    "coverageReference": {
+      "anyOf": [
+        {"$ref": "#/$defs/coverage"},
+        {"type": "null"}
+      ]
+    },
+    "areaOptions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/areaOption"},
+      "minItems": 0,
+      "maxItems": 12,
+      "uniqueItems": true
+    },
+    "areaChoice": {
+      "anyOf": [
+        {"$ref": "#/$defs/areaChoice"},
+        {"type": "null"}
+      ]
+    },
+    "qualityOptions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/quality"},
+      "minItems": 0,
+      "maxItems": 12,
+      "uniqueItems": true
+    },
+    "qualityChoice": {
+      "anyOf": [
+        {"$ref": "#/$defs/quality"},
+        {"type": "null"}
+      ]
+    },
+    "pending": {
+      "anyOf": [
+        {"$ref": "#/$defs/pending"},
+        {"type": "null"}
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{0,63}(?![\\s\\S])"},
+      "minItems": 0,
+      "maxItems": 64,
+      "uniqueItems": true
+    },
+    "missingFacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/id"},
+      "minItems": 0,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "nextQuestion": {
+      "anyOf": [
+        {"$ref": "#/$defs/publicText"},
+        {"type": "null"}
+      ]
+    },
+    "adoptionCheck": {"anyOf": [{"$ref": "#/$defs/adoptionCheck"}, {"type": "null"}]},
+    "planDigest": {
+      "anyOf": [
+        {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+        {"type": "null"}
+      ]
+    }
+  },
+  "if": {"properties": {"status": {"const": "READY"}}},
+  "then": {
+    "properties": {
+      "stage": {"const": "PLAN_READY"},
+      "adoptionCheck": {"$ref": "#/$defs/adoptionCheck"},
+      "areaChoice": {
+        "type": "object",
+        "properties": {
+          "spatialFit": {"enum": ["VERIFIED", "NOT_APPLICABLE"]},
+          "previewStatus": {"const": "READY"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "adoptionCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkedAt", "requestId", "phase1AreaPlanId", "phase1PlanRevision", "projectFingerprint", "coverageSnapshotId", "status"],
+      "properties": {
+        "checkedAt": {"$ref": "#/$defs/timestamp"},
+        "requestId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+        "phase1AreaPlanId": {"$ref": "#/$defs/uuid"},
+        "phase1PlanRevision": {"type": "integer", "minimum": 1, "maximum": 2147483647},
+        "projectFingerprint": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+        "coverageSnapshotId": {"$ref": "#/$defs/uuid"},
+        "status": {"const": "READY"}
+      }
+    },
+    "id": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/id"},
+    "uuid": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+    "spatialFit": {"enum": ["VERIFIED", "UNVERIFIED", "OUTSIDE", "NOT_APPLICABLE"]},
+    "timestamp": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/timestamp"},
+    "publicText": {"type": "string", "minLength": 1, "maxLength": 280},
+    "overlap": {
+      "enum": ["SINGLE", "SHARED_DATASET", "SEPARATE"]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "locality", "administrativeCode", "coordinates", "physicalPlaceStatus", "workAssociationStatus", "evidenceIds", "reason", "datasetAvailability"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/publicText"},
+        "locality": {
+          "anyOf": [
+            {"$ref": "#/$defs/publicText"},
+            {"type": "null"}
+          ]
+        },
+        "administrativeCode": {
+          "anyOf": [
+            {"type": "string", "pattern": "^[0-9]{5}(?![\\s\\S])"},
+            {"type": "null"}
+          ]
+        },
+        "coordinates": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["latitude", "longitude", "crs", "precision", "sourceEvidenceIds"],
+              "properties": {
+                "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+                "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+                "crs": {"enum": ["EPSG:4326", "EPSG:6668"]},
+                "precision": {"$ref": "#/$defs/publicText"},
+                "accuracyDegrees": {"type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 180},
+                "sourceEvidenceIds": {
+                  "type": "array",
+                  "items": {"$ref": "#/$defs/id"},
+                  "minItems": 1,
+                  "maxItems": 16,
+                  "uniqueItems": true
+                }
+              }
+            },
+            {"type": "null"}
+          ]
+        },
+        "physicalPlaceStatus": {
+          "enum": ["VERIFIED", "UNVERIFIED", "DISPUTED", "NOT_FOUND"]
+        },
+        "workAssociationStatus": {
+          "enum": ["VERIFIED", "UNVERIFIED", "DISPUTED", "NOT_FOUND"]
+        },
+        "evidenceIds": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"},
+          "minItems": 0,
+          "maxItems": 32,
+          "uniqueItems": true
+        },
+        "reason": {"$ref": "#/$defs/publicText"},
+        "datasetAvailability": {
+          "enum": ["UNKNOWN", "CANDIDATE_ONLY", "VERIFIED_PARTIAL", "VERIFIED_AVAILABLE", "VERIFIED_UNAVAILABLE"]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "subjectId", "claimType", "sourceKind", "providerId", "sourceRef", "observedAt", "factStatus"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "subjectId": {"$ref": "#/$defs/id"},
+        "claimType": {
+          "enum": ["PLACE_EXISTENCE", "WORK_ASSOCIATION", "COORDINATES", "ADMINISTRATIVE_CODE", "DATASET", "COVERAGE", "LOD", "LICENSE"]
+        },
+        "sourceKind": {
+          "enum": ["OFFICIAL", "PUBLISHER", "MUNICIPAL", "SECONDARY", "COMMUNITY", "LOCAL_OBSERVATION"]
+        },
+        "providerId": {"$ref": "#/$defs/id"},
+        "sourceRef": {
+          "anyOf": [
+            {"$ref": "#/$defs/id"},
+            {"type": "string", "pattern": "^https://[a-z0-9.-]+(?:/[A-Za-z0-9_./~-]*)?(?![\\s\\S])"}
+          ]
+        },
+        "observedAt": {"$ref": "#/$defs/timestamp"},
+        "factStatus": {
+          "enum": ["VERIFIED", "UNVERIFIED", "DISPUTED", "UNKNOWN"]
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "selectedId", "revision", "decisionSource", "decidedAt"],
+      "if": {"properties": {"kind": {"const": "LOCATION"}}},
+      "then": {"required": ["targetKind"]},
+      "else": {"not": {"required": ["targetKind"]}},
+      "properties": {
+        "kind": {
+          "enum": ["LOCATION", "DATASET", "AREA", "OVERLAP_POLICY", "QUALITY", "PLAN"]
+        },
+        "selectedId": {"$ref": "#/$defs/id"},
+        "revision": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/revision"},
+        "decisionSource": {"const": "USER_EXPLICIT"},
+        "targetKind": {"enum": ["POINT", "MUNICIPALITY", "GRID"]},
+        "decidedAt": {"$ref": "#/$defs/timestamp"}
+      }
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sourceReference", "requestId", "checkedAt", "status", "result"],
+      "properties": {
+        "source": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/source"},
+        "sourceReference": {
+          "enum": ["approved-local", "plateau-public"]
+        },
+        "requestId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+        "checkedAt": {"$ref": "#/$defs/timestamp"},
+        "status": {
+          "enum": ["READY", "PARTIAL", "UNAVAILABLE", "UNKNOWN", "BLOCKED", "FAILED"]
+        },
+        "result": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/allOf/1/then/properties/result"}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sourceReference", "datasetId", "requestedGrids", "coverageSnapshotId", "locationId", "status", "issuedAt", "checkedAt", "expiresAt", "diagnostics", "result"],
+      "properties": {
+        "source": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/source"},
+        "sourceReference": {
+          "enum": ["approved-local", "plateau-public"]
+        },
+        "datasetId": {"$ref": "#/$defs/id"},
+        "requestedGrids": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/grids"},
+        "coverageSnapshotId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+        "locationId": {"$ref": "#/$defs/id"},
+        "issuedAt": {"$ref": "#/$defs/timestamp"},
+        "diagnostics": {
+          "type": "array",
+          "items": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/diagnostic"},
+          "maxItems": 16,
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": ["READY", "PARTIAL", "UNAVAILABLE", "UNKNOWN", "BLOCKED", "FAILED"]
+        },
+        "checkedAt": {"$ref": "#/$defs/timestamp"},
+        "expiresAt": {"$ref": "#/$defs/timestamp"},
+        "result": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/allOf/2/then/properties/result"}
+      }
+    },
+    "pending": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request", "revision", "issuedAt", "purpose"],
+      "properties": {
+        "request": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-request.schema.json"},
+        "revision": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/revision"},
+        "issuedAt": {"$ref": "#/$defs/timestamp"},
+        "purpose": {
+          "anyOf": [
+            {"$ref": "#/$defs/id"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "areaOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "plan", "coordinateReference", "status", "preview", "previewStatus", "spatialFit", "png"],
+      "properties": {
+        "id": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+        "plan": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/allOf/3/then/properties/result/anyOf/0"},
+        "coordinateReference": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/crs"},
+        "previewStatus": {"enum": [null, "READY", "PARTIAL"]},
+        "spatialFit": {"$ref": "#/$defs/spatialFit"},
+        "status": {
+          "enum": ["READY", "PARTIAL", "UNAVAILABLE", "UNKNOWN", "BLOCKED", "FAILED"]
+        },
+        "preview": {
+          "anyOf": [
+            {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/allOf/4/then/properties/result/anyOf/0"},
+            {"type": "null"}
+          ]
+        },
+        "png": {
+          "anyOf": [
+            {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/preview-manifest.schema.json"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "preset", "requestedFeatureTypes", "requestedLods", "reason", "verifiedLods", "verifiedFeatureTypes", "unverifiedRequirements", "estimates"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "preset": {
+          "enum": ["LIGHT", "BALANCED", "HIGH", "CUSTOM"]
+        },
+        "requestedFeatureTypes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"},
+          "minItems": 0,
+          "maxItems": 32,
+          "uniqueItems": true
+        },
+        "requestedLods": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+          "minItems": 0,
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "reason": {"$ref": "#/$defs/publicText"},
+        "verifiedLods": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+          "minItems": 0,
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "verifiedFeatureTypes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"},
+          "minItems": 0,
+          "maxItems": 32,
+          "uniqueItems": true
+        },
+        "unverifiedRequirements": {
+          "type": "array",
+          "items": {
+            "enum": ["LOD", "FEATURE_TYPE", "FEATURE_LOD_ASSOCIATION"]
+          },
+          "minItems": 0,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "estimates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["diskBytes", "memoryBytes", "durationSeconds"],
+          "properties": {
+            "diskBytes": {"const": null},
+            "memoryBytes": {"const": null},
+            "durationSeconds": {"const": null}
+          }
+        }
+      }
+    },
+    "areaChoice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "plan", "coordinateReference", "status", "preview", "previewStatus", "spatialFit", "png", "overlapPolicy"],
+      "properties": {
+        "id": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+        "plan": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/allOf/3/then/properties/result/anyOf/0"},
+        "coordinateReference": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/crs"},
+        "previewStatus": {"enum": [null, "READY", "PARTIAL"]},
+        "spatialFit": {"$ref": "#/$defs/spatialFit"},
+        "status": {
+          "enum": ["READY", "PARTIAL", "UNAVAILABLE", "UNKNOWN", "BLOCKED", "FAILED"]
+        },
+        "preview": {
+          "anyOf": [
+            {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/allOf/4/then/properties/result/anyOf/0"},
+            {"type": "null"}
+          ]
+        },
+        "png": {
+          "anyOf": [
+            {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/preview-manifest.schema.json"},
+            {"type": "null"}
+          ]
+        },
+        "overlapPolicy": {
+          "anyOf": [
+            {"$ref": "#/$defs/overlap"},
+            {"type": "null"}
+          ]
+        }
+      }
+    }
+  }
+}

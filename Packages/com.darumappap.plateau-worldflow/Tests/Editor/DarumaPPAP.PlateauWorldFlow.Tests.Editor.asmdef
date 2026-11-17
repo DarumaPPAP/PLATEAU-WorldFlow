@@ -1,0 +1,16 @@
+{
+  "name": "DarumaPPAP.PlateauWorldFlow.Tests.Editor",
+  "rootNamespace": "DarumaPPAP.PlateauWorldFlow",
+  "references": [
+    "DarumaPPAP.PlateauWorldFlow.Core.Editor",
+    "DarumaPPAP.PlateauWorldFlow.Setup.Editor",
+    "DarumaPPAP.PlateauWorldFlow.Preview.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false
+}

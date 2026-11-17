@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-result.schema.json",
+  "title": "WorldFlow Import Result",
+  "description": "Common import outcome fields. GML and Scene verification must be based on runtime observations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "importPlanId",
+    "projectFingerprint",
+    "planHash",
+    "operationKey",
+    "checkedAt",
+    "state",
+    "gml",
+    "sceneVerification"
+  ],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "jobId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/jobId"},
+    "importPlanId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/importPlanId"},
+    "projectFingerprint": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/projectFingerprint"},
+    "planHash": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/planHash"},
+    "operationKey": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json#/properties/operationKey"},
+    "checkedAt": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/timestamp"},
+    "state": {"enum": ["COMPLETED", "PARTIAL", "FAILED", "CANCELLED", "NEEDS_RECONCILIATION"]},
+    "gml": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "succeeded", "unverified"],
+      "properties": {
+        "expected": {"type": "integer", "minimum": 0},
+        "succeeded": {"type": "integer", "minimum": 0},
+        "unverified": {"type": "integer", "minimum": 0, "description": "Expected GML without verified success, including failures and missing observations."}
+      }
+    },
+    "sceneVerification": {"enum": ["VERIFIED", "FAILED", "UNVERIFIED"]}
+  },
+  "if": {"properties": {"state": {"const": "COMPLETED"}}},
+  "then": {
+    "properties": {
+      "gml": {"properties": {"expected": {"minimum": 1}, "unverified": {"const": 0}}},
+      "sceneVerification": {"const": "VERIFIED"}
+    }
+  }
+}

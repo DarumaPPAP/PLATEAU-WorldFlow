@@ -1,0 +1,28 @@
+name: Validate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static validation
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4
+        with:
+          persist-credentials: false
+      - name: Install pinned static dependencies
+        run: |
+          python3 -m venv "$RUNNER_TEMP/worldflow-static"
+          "$RUNNER_TEMP/worldflow-static/bin/python" -m pip install --only-binary=:all: --no-deps -r tools/requirements-static.txt
+          "$RUNNER_TEMP/worldflow-static/bin/python" -m pip check
+          echo "$RUNNER_TEMP/worldflow-static/bin" >> "$GITHUB_PATH"
+      - name: Validate schemas and fixtures
+        run: python3 tools/validate_contracts.py
+      - name: Validate repository context
+        run: python3 tools/validate_repository.py
+      - name: Run static tests
+        run: python3 -m unittest discover -s tests -v

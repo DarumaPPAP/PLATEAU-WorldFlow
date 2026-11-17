@@ -1,0 +1,93 @@
+{
+  "context": {
+    "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+    "now": "2026-11-11T00:05:00Z",
+    "allowedChanges": [
+      {
+        "packageId": "com.synesthesias.plateau-unity-sdk",
+        "sourceUri": "https://github.com/Project-PLATEAU/PLATEAU-SDK-for-Unity.git#v4.3.0",
+        "versionOrCommit": "v4.3.0",
+        "expectedVersion": "4.3.0",
+        "licenseUrl": "https://github.com/Project-PLATEAU/PLATEAU-SDK-for-Unity/blob/v4.3.0/LICENSE.md"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "file": "dependency-inventory/valid.json",
+      "expect": "valid"
+    },
+    {
+      "file": "dependency-install-plan/valid.json",
+      "expect": "valid"
+    },
+    {
+      "file": "dependency-install-result/valid.json",
+      "expect": "valid"
+    },
+    {
+      "file": "dependency-inventory/missing-field.json",
+      "expect": "schema:required"
+    },
+    {
+      "file": "dependency-inventory/unknown-status.json",
+      "expect": "schema:enum"
+    },
+    {
+      "file": "dependency-inventory/invalid-commit.json",
+      "expect": "schema:anyOf"
+    },
+    {
+      "file": "dependency-inventory/wrong-type.json",
+      "expect": "schema:type"
+    },
+    {
+      "file": "dependency-inventory/invalid-date.json",
+      "expect": "schema:format"
+    },
+    {
+      "file": "dependency-install-plan/non-integer-revision.json",
+      "expect": "schema:type"
+    },
+    {
+      "file": "dependency-install-plan/invalid-url.json",
+      "expect": "schema:pattern"
+    },
+    {
+      "file": "dependency-install-plan/approval-boolean.json",
+      "expect": "schema:additionalProperties"
+    },
+    {
+      "file": "dependency-install-plan/hash-mismatch.json",
+      "expect": "plan:hash"
+    },
+    {
+      "file": "dependency-install-plan/different-project.json",
+      "expect": "context:project"
+    },
+    {
+      "file": "dependency-install-plan/expired.json",
+      "expect": "context:expiry"
+    },
+    {
+      "file": "dependency-install-plan/outside-allowlist.json",
+      "expect": "context:source"
+    },
+    {
+      "file": "dependency-install-result/wrong-state.json",
+      "expect": "schema:enum"
+    },
+    {
+      "file": "dependency-install-result/private-path.json",
+      "expect": "schema:pattern"
+    },
+    {
+      "file": "dependency-install-result/secret-field.json",
+      "expect": "schema:additionalProperties"
+    },
+    {
+      "file": "dependency-install-result/path-traversal.json",
+      "expect": "schema:pattern"
+    }
+  ]
+}

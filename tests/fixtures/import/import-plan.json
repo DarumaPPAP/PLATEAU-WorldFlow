@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "importPlanId": "00000000-0000-4000-8000-000000000002",
+  "revision": 1,
+  "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+  "phase2": {
+    "planningSessionId": "00000000-0000-4000-8000-000000000001",
+    "planRevision": 18,
+    "planDigest": "4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "source": {
+    "kind": "LOCAL",
+    "worldFlowDatasetId": "12345",
+    "sdkSourceId": null,
+    "datasetVersion": "2024.v4",
+    "sourceFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+    "mappingStatus": "VERIFIED"
+  },
+  "selection": {
+    "gridCodes": [
+      "533945",
+      "533946"
+    ],
+    "coordinateZoneId": 9,
+    "featureSettings": [
+      {
+        "featureType": "bldg",
+        "lods": [
+          0,
+          1
+        ],
+        "includeTexture": false,
+        "enableTexturePacking": false,
+        "doSetMeshCollider": true,
+        "doSetAttrInfo": false,
+        "meshGranularity": "PerPrimaryFeatureObject"
+      }
+    ],
+    "qualityRequirementsStatus": "VERIFIED"
+  },
+  "output": {
+    "mode": "NEW_SCENE",
+    "scenePath": "Assets/PLATEAUWorldFlow/Imports/00000000-0000-4000-8000-000000000002/City.unity",
+    "assetExport": "NONE",
+    "overwriteExisting": false
+  },
+  "expectedGmlManifestHash": "5555555555555555555555555555555555555555555555555555555555555555",
+  "sdkVersion": "4.3.0",
+  "expiresAt": "2026-11-16T00:05:00Z",
+  "operationKey": "820be1e2db4c1f3d0e12fc04bb0346d244717f1bcd3a826bf2fadc2470bc15c1",
+  "planHash": "31d882d65aa2ff819069aff399a1449b9bdaba451b383316f1e06dc6127f56d4"
+}

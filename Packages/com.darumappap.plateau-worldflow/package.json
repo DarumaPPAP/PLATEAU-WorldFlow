@@ -1,0 +1,13 @@
+{
+  "name": "com.darumappap.plateau-worldflow",
+  "version": "0.1.0",
+  "displayName": "PLATEAU WorldFlow",
+  "description": "Unity Editor integration for PLATEAU discovery, dependency setup, and user-approved CityGML import with scene and PNG evidence.",
+  "unity": "6000.3",
+  "unityRelease": "10f1",
+  "license": "MIT",
+  "author": {
+    "name": "DarumaPPAP"
+  },
+  "keywords": ["plateau", "citygml", "gis", "ai", "editor"]
+}

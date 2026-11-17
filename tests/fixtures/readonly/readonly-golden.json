@@ -1,0 +1,453 @@
+{
+  "dataset": {
+    "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "title": "検証用都市（第１版）",
+    "featureTypes": ["bldg"],
+    "version": null,
+    "publisher": null,
+    "licenseId": null,
+    "licenseUrl": null,
+    "sourceUrl": null
+  },
+  "cells": [
+    {
+      "code": "533945",
+      "extent": {"south": 35, "west": 139, "north": 36, "east": 140, "crs": "EPSG:4326"},
+      "featureTypes": null,
+      "availableLods": null
+    },
+    {
+      "code": "533946",
+      "extent": {"south": 35, "west": 139, "north": 36, "east": 140, "crs": null},
+      "featureTypes": [],
+      "availableLods": []
+    }
+  ],
+  "missing": ["533947"],
+  "cases": [
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000001",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "datasets.list",
+        "input": {"source": "LOCAL", "sourceReference": "local-01", "maxResults": 20}
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000001",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "datasets.list",
+        "status": "READY",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": {
+          "source": "LOCAL",
+          "datasets": [
+            {
+              "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "title": "検証用都市（第１版）",
+              "featureTypes": ["bldg"],
+              "version": null,
+              "publisher": null,
+              "licenseId": null,
+              "licenseUrl": null,
+              "sourceUrl": null
+            }
+          ],
+          "truncated": false
+        },
+        "evidence": [{"kind": "DATASET_QUERY", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+        "diagnostics": [],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000002",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950", "533946", "533947", "533945", "533945"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000002",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "PARTIAL",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "availableGridCodes": [
+            {
+              "code": "533945",
+              "extent": {"south": 35, "west": 139, "north": 36, "east": 140, "crs": "EPSG:4326"},
+              "featureTypes": null,
+              "availableLods": null
+            },
+            {
+              "code": "533946",
+              "extent": {"south": 35, "west": 139, "north": 36, "east": 140, "crs": null},
+              "featureTypes": [],
+              "availableLods": []
+            }
+          ],
+          "unavailableGridCodes": ["533947"],
+          "unverifiedGridCodes": ["533950"],
+          "truncated": false
+        },
+        "evidence": [{"kind": "DATASET_QUERY", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+        "diagnostics": [{"code": "COVERAGE_UNCONFIRMED", "location": "gridCodes", "retryable": false}],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000003",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "input": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "selectedGridCodes": ["533950", "533946", "533945", "533947", "533945"],
+          "coverageSnapshotId": "00000000-0000-4000-8000-000000000002",
+          "coordinateReference": null,
+          "planRevision": 1
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000003",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "status": "PARTIAL",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": {
+          "planId": "00000000-0000-4000-8000-000000000003",
+          "planRevision": 1,
+          "coverageSnapshotId": "00000000-0000-4000-8000-000000000002",
+          "selectedGridCodes": ["533945", "533946", "533947", "533950"],
+          "coveredGridCodes": ["533945", "533946"],
+          "missingGridCodes": ["533947"],
+          "unverifiedGridCodes": ["533950"],
+          "extent": null,
+          "overlap": null,
+          "estimatedAreaSquareMeters": null,
+          "areaMethod": "NOT_COMPUTED"
+        },
+        "evidence": [{"kind": "DATASET_QUERY", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+        "diagnostics": [
+          {"code": "COVERAGE_UNCONFIRMED", "location": "selectedGridCodes", "retryable": false},
+          {"code": "CRS_UNVERIFIED", "location": "coordinateReference", "retryable": false}
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000004",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "input": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "selectedGridCodes": ["533950", "533946", "533945", "533947", "533945"],
+          "coverageSnapshotId": "00000000-0000-4000-8000-000000000001",
+          "coordinateReference": null,
+          "planRevision": 1
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000004",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "PLAN_STALE", "location": "coverageSnapshotId", "retryable": false}],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000005",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "datasets.list",
+        "input": {"source": "LOCAL", "sourceReference": "D:\\private\\dataset", "maxResults": 20}
+      },
+      "invalidRequest": true,
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000005",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "datasets.list",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "SOURCE_NOT_ALLOWED", "location": "sourceReference", "retryable": false}],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000006",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533985"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
+      },
+      "invalidRequest": true,
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000006",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "FAILED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "INVALID_GRID_CODE", "location": "gridCodes", "retryable": false}],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000008",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "input": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "selectedGridCodes": ["533947", "533945", "533945"],
+          "coverageSnapshotId": "00000000-0000-4000-8000-000000000002",
+          "coordinateReference": "EPSG:4326",
+          "planRevision": 2
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000008",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "status": "READY",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": {
+          "planId": "00000000-0000-4000-8000-000000000008",
+          "planRevision": 2,
+          "coverageSnapshotId": "00000000-0000-4000-8000-000000000002",
+          "selectedGridCodes": ["533945", "533947"],
+          "coveredGridCodes": ["533945"],
+          "missingGridCodes": ["533947"],
+          "unverifiedGridCodes": [],
+          "extent": {"south": 35, "west": 139, "north": 36, "east": 140, "crs": "EPSG:4326"},
+          "overlap": null,
+          "estimatedAreaSquareMeters": null,
+          "areaMethod": "NOT_COMPUTED"
+        },
+        "evidence": [{"kind": "DATASET_QUERY", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+        "diagnostics": [],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000009",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533947"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000009",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "UNAVAILABLE",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "availableGridCodes": [],
+          "unavailableGridCodes": ["533947"],
+          "unverifiedGridCodes": [],
+          "truncated": false
+        },
+        "evidence": [{"kind": "DATASET_QUERY", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+        "diagnostics": [{"code": "COVERAGE_NOT_FOUND", "location": "gridCodes", "retryable": false}],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000010",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000010",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "UNKNOWN",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "availableGridCodes": null,
+          "unavailableGridCodes": null,
+          "unverifiedGridCodes": ["533950"],
+          "truncated": false
+        },
+        "evidence": [{"kind": "DATASET_QUERY", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+        "diagnostics": [{"code": "COVERAGE_UNCONFIRMED", "location": "gridCodes", "retryable": false}],
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000011",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "input": {
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "selectedGridCodes": ["533950", "533946", "533945", "533947", "533945"],
+          "coverageSnapshotId": "00000000-0000-4000-8000-000000000010",
+          "coordinateReference": null,
+          "planRevision": 1
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000011",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "areas.plan",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:05:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "PLAN_STALE", "location": "coverageSnapshotId", "retryable": false}],
+        "warnings": []
+      },
+      "at": "2026-11-12T00:05:00Z"
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000012",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950", "533946", "533947", "533945", "533945"],
+          "maxResults": 500,
+          "sourceReference": "local-01"
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000012",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "SOURCE_NOT_ALLOWED", "location": "sourceReference", "retryable": false}],
+        "warnings": []
+      },
+      "catalogReference": "local-02"
+    },
+    {
+      "request": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000013",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "input": {
+          "source": "LOCAL",
+          "datasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "gridCodes": ["533950", "533946", "533947", "533945", "533945"],
+          "maxResults": 500
+        }
+      },
+      "response": {
+        "schemaVersion": 1,
+        "requestId": "00000000-0000-4000-8000-000000000013",
+        "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "operation": "coverage.inspect",
+        "status": "BLOCKED",
+        "checkedAt": "2026-11-12T00:00:00Z",
+        "result": null,
+        "evidence": [],
+        "diagnostics": [{"code": "SOURCE_NOT_ALLOWED", "location": "sourceReference", "retryable": false}],
+        "warnings": []
+      },
+      "invalidRequest": true
+    }
+  ],
+  "png": {
+    "request": {
+      "schemaVersion": 1,
+      "requestId": "00000000-0000-4000-8000-000000000007",
+      "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+      "operation": "areas.preview_png",
+      "input": {"previewId": "00000000-0000-4000-8000-000000000006", "width": 512, "height": 512}
+    },
+    "response": {
+      "schemaVersion": 1,
+      "requestId": "00000000-0000-4000-8000-000000000007",
+      "projectFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+      "operation": "areas.preview_png",
+      "status": "READY",
+      "checkedAt": "2026-11-12T00:00:00Z",
+      "result": {
+        "artifactId": "00000000-0000-4000-8000-000000000007",
+        "relativePath": "Library/PLATEAUWorldFlow/Preview/00000000-0000-4000-8000-000000000007.png",
+        "mimeType": "image/png",
+        "width": 512,
+        "height": 512,
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "byteLength": 100,
+        "createdAt": "2026-11-12T00:00:00Z",
+        "sourceDatasetId": "dataset_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "planId": "00000000-0000-4000-8000-000000000003",
+        "planRevision": 1,
+        "crs": null,
+        "deliveryStatus": "ARTIFACT_ONLY"
+      },
+      "evidence": [{"kind": "PNG_ARTIFACT", "source": "LOCAL_DATASET", "checkedAt": "2026-11-12T00:00:00Z"}],
+      "diagnostics": [],
+      "warnings": []
+    }
+  }
+}

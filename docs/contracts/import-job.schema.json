@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/import-job.schema.json",
+  "title": "WorldFlow Import Job",
+  "description": "Common identity, state, and timestamp fields for an Import Job snapshot. A matching JSON document does not grant execution approval or prove a valid state transition.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "importPlanId",
+    "projectFingerprint",
+    "planHash",
+    "operationKey",
+    "state",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "jobId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+    "importPlanId": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/uuid"},
+    "projectFingerprint": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+    "planHash": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+    "operationKey": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/hash"},
+    "state": {"$ref": "#/$defs/state"},
+    "createdAt": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/timestamp"},
+    "updatedAt": {"$ref": "https://darumappap.github.io/PLATEAU-WorldFlow/contracts/v1/readonly-response.schema.json#/$defs/timestamp"}
+  },
+  "$defs": {
+    "state": {
+      "enum": [
+        "PREPARED",
+        "AWAITING_APPROVAL",
+        "APPROVED",
+        "RESERVED",
+        "RUNNING",
+        "VERIFYING",
+        "COMPLETED",
+        "PARTIAL",
+        "FAILED",
+        "CANCELLING",
+        "CANCELLED",
+        "NEEDS_RECONCILIATION"
+      ]
+    }
+  }
+}

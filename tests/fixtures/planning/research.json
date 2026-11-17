@@ -1,0 +1,35 @@
+{
+  "researchStatus": "COMPLETE",
+  "publicHosts": ["example.test"],
+  "candidates": [
+    {
+      "id": "place-a",
+      "name": "試験町Ａ",
+      "locality": "Example Town A",
+      "administrativeCode": "12345",
+      "coordinates": null,
+      "physicalPlaceStatus": "VERIFIED",
+      "workAssociationStatus": "UNVERIFIED",
+      "evidenceIds": ["exist-a", "code-a"],
+      "reason": "自治体資料に記載がある",
+      "datasetAvailability": "CANDIDATE_ONLY"
+    },
+    {
+      "id": "place-b",
+      "name": "試験町Ａ",
+      "locality": "Example Town B",
+      "administrativeCode": null,
+      "coordinates": null,
+      "physicalPlaceStatus": "VERIFIED",
+      "workAssociationStatus": "UNVERIFIED",
+      "evidenceIds": ["exist-b"],
+      "reason": "自治体資料に同名の地点がある",
+      "datasetAvailability": "UNKNOWN"
+    }
+  ],
+  "evidence": [
+    {"id": "exist-a", "subjectId": "place-a", "claimType": "PLACE_EXISTENCE", "sourceKind": "MUNICIPAL", "providerId": "fixture", "sourceRef": "https://example.test/a", "observedAt": "2026-11-10T00:00:00Z", "factStatus": "VERIFIED"},
+    {"id": "code-a", "subjectId": "place-a", "claimType": "ADMINISTRATIVE_CODE", "sourceKind": "OFFICIAL", "providerId": "fixture", "sourceRef": "https://example.test/code", "observedAt": "2026-11-10T00:00:00Z", "factStatus": "VERIFIED"},
+    {"id": "exist-b", "subjectId": "place-b", "claimType": "PLACE_EXISTENCE", "sourceKind": "MUNICIPAL", "providerId": "fixture", "sourceRef": "https://example.test/b", "observedAt": "2026-11-10T00:00:00Z", "factStatus": "VERIFIED"}
+  ]
+}
