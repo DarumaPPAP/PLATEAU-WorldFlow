@@ -8,7 +8,7 @@
 | Unity CLI | `1.0.0-beta.17` / Pipeline `1.0.0` |
 | CityGML | 許可したLocal / 公式RemoteでImport、Scene再読込、証跡照合 |
 
-[実装PR #12](https://github.com/DarumaPPAP/PLATEAU-WorldFlow/pull/12)の実機検証報告に基づきます。Packageの初期Unity基準は`6000.3.10f1`以上ですが、すべてのEditor版での動作保証ではありません。
+[実装PR #12](https://github.com/DarumaPPAP/PLATEAU-WorldFlow-Archive/pull/12)の実機検証報告に基づきます。Packageの初期Unity基準は`6000.3.10f1`以上ですが、すべてのEditor版での動作保証ではありません。
 
 ## 未確認・提供範囲外
 

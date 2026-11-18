@@ -46,13 +46,39 @@ UnityMCPとUnity CLIの両方を同時に導入することは必須ではあり
 
 ## 導入・使い方
 
-1. このRepositoryをcloneします。
-2. Unityの `Window > Package Manager` で「Add package from disk」を選び、`Packages/com.darumappap.plateau-worldflow/package.json` を指定してWorldFlowを追加します。
-3. Unity Editorの `Tools > PLATEAU WorldFlow > Check Dependencies` で依存関係を確認します。SDKが必要な場合は、取得元・固定Commit・変更内容を確認してから承認し、Git経由で導入します。
-4. AIから利用する場合は、[自然言語による計画の手順](docs/guides/planning.md)に従って、別途Python環境とAgent Skillsを準備します。
-5. 計画を採用したら、[Importと証跡確認の手順](docs/guides/import.md)に従ってUnity EditorでImportを承認・実行します。
+### Unity Package ManagerからGit URLでインストール（推奨）
 
-**安定版のGit Tag / GitHub Releaseはまだ発行していません。** GitでのUPM導入を利用者向けの安定リリースとして案内する前に、Versionと動作の検証が必要です。
+1. Unityを起動し、`Window > Package Manager` を開きます。
+2. `+` メニューで `Install package from git URL` を選択します。
+3. 次のURLを入力して `Install` を押します。
+
+```text
+https://github.com/DarumaPPAP/PLATEAU-WorldFlow.git?path=/Packages/com.darumappap.plateau-worldflow
+```
+
+PackageはRepositoryのサブフォルダーにあるため、**`?path=/Packages/com.darumappap.plateau-worldflow` が必須**です。URLを指定するPCにはGitクライアント（2.14.0以上、WindowsではPATH設定）が必要です。導入後はPackage Managerの `In Project` に `PLATEAU WorldFlow` が表示されることを確認してください。
+
+Unity Projectの `Packages/manifest.json` に直接記述する場合は、`dependencies` に次の項目を追加しても導入できます（既存の項目は維持してください）。
+
+```json
+"com.darumappap.plateau-worldflow": "https://github.com/DarumaPPAP/PLATEAU-WorldFlow.git?path=/Packages/com.darumappap.plateau-worldflow"
+```
+
+**Git URLから取得されるのはUnity Packageフォルダーだけです。** AIによる自然言語計画に必要なRepository直下の `.agents/skills`、`tools`、Pythonのスクリプトは含まれません。これらを利用する場合は別途Repositoryをcloneしてください。
+
+### ローカルCloneからインストール（開発用）
+
+Repositoryをcloneし、Unity Package Managerの `Install package from disk` から `Packages/com.darumappap.plateau-worldflow/package.json` を選択する方法も継続して利用できます。
+
+### 初期セットアップとAI連携
+
+1. Unity Editorの `Tools > PLATEAU WorldFlow > Check Dependencies` で依存関係を確認します。SDKが必要な場合は、取得元・固定Commit・変更内容を確認して承認し、Git経由で導入します。
+2. AIから自然言語で計画する場合は、[自然言語による計画の手順](docs/guides/planning.md)に従って、別途Python環境とAgent Skillsを準備します。
+3. 計画を採用したら、[Importと証跡確認の手順](docs/guides/import.md)に従ってUnity EditorでImportを承認・実行します。
+
+WorldFlowのGit URLインストールと、PLATEAU SDKの承認付き導入は**別の操作**です。SDKのGit依存にはGit LFSも必要です。WorldFlowの `package.json` からSDKを無承認で追加することはありません。
+
+**安定版のGit Tag / GitHub Releaseはまだ発行していません。** 上記URLは `main` の開発版を取得します。Git URLからのUnity Editor実機インストールは現時点で未検証のため、対応環境は[互換性・制約](docs/compatibility.md)も確認してください。
 
 ### 利用ガイド
 
